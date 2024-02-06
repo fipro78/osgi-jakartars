@@ -32,74 +32,74 @@ import jakarta.ws.rs.ext.MessageBodyWriter;
 @Component(scope = ServiceScope.PROTOTYPE)
 @JakartarsExtension
 @JakartarsMediaType(MediaType.APPLICATION_JSON)
-public class JacksonJsonConverter<T> implements MessageBodyReader<T>, MessageBodyWriter<T> {
+public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
-    @Reference(service=LoggerFactory.class)
-    private Logger logger;
+	@Reference(service = LoggerFactory.class)
+	private Logger logger;
 
-    private final Converter converter = Converters.newConverterBuilder()
-            .rule(String.class, this::toJson)
+	private final Converter converter = Converters.newConverterBuilder()
+			.rule(String.class, this::toJson)
             .rule(this::toObject)
             .build();
 
-    private ObjectMapper mapper = new ObjectMapper();
+	private ObjectMapper mapper = new ObjectMapper();
 
-    private String toJson(Object value, Type targetType) {
-        try {
-            return mapper.writeValueAsString(value);
-        } catch (JsonProcessingException e) {
-            logger.error("error on JSON creation", e);
-            return e.getLocalizedMessage();
-        }
-    }
+	private String toJson(Object value, Type targetType) {
+		try {
+			return mapper.writeValueAsString(value);
+		} catch (JsonProcessingException e) {
+			logger.error("error on JSON creation", e);
+			return e.getLocalizedMessage();
+		}
+	}
 
-    private Object toObject(Object o, Type t) {
-        try {
-	    if (List.class.getName().equals(t.getTypeName())) {
-                return this.mapper.readValue((String) o, List.class);
-            }
-            return this.mapper.readValue((String) o, String.class);
-        } catch (IOException e) {
-            logger.error("error on JSON parsing", e);
-        }
-        return ConverterFunction.CANNOT_HANDLE;
-    }
+	private Object toObject(Object o, Type t) {
+		try {
+			if (List.class.getName().equals(t.getTypeName())) {
+				return this.mapper.readValue((String) o, List.class);
+			}
+			return this.mapper.readValue((String) o, String.class);
+		} catch (IOException e) {
+			logger.error("error on JSON parsing", e);
+		}
+		return ConverterFunction.CANNOT_HANDLE;
+	}
 
-    @Override
+	@Override
     public boolean isWriteable(
         Class<?> c, Type t, Annotation[] a, MediaType mediaType) {
 
-        return MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)
-            || mediaType.getSubtype().endsWith("+json");
-    }
+		return MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType) 
+				|| mediaType.getSubtype().endsWith("+json");
+	}
 
-    @Override
+	@Override
     public boolean isReadable(
         Class<?> c, Type t, Annotation[] a, MediaType mediaType) {
 
-        return MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)
-            || mediaType.getSubtype().endsWith("+json");
-    }
+		return MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType) 
+				|| mediaType.getSubtype().endsWith("+json");
+	}
 
-    @Override
-    public void writeTo(
-        T o, Class<?> arg1, Type arg2, Annotation[] arg3, MediaType arg4,
-        MultivaluedMap<String, java.lang.Object> arg5, OutputStream out)
-        throws IOException, WebApplicationException {
+	@Override
+	public void writeTo(
+			Object o, Class<?> type, Type genericType, 
+			Annotation[] annotations, MediaType mediaType,
+			MultivaluedMap<String, Object> httpHeaders, OutputStream out) 
+					throws IOException, WebApplicationException {
 
-        String json = converter.convert(o).to(String.class);
-        out.write(json.getBytes());
-    }
+		String json = converter.convert(o).to(String.class);
+		out.write(json.getBytes());
+	}
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public T readFrom(
-        Class<T> arg0, Type arg1, Annotation[] arg2, MediaType arg3,
-        MultivaluedMap<String, String> arg4, InputStream in)
-        throws IOException, WebApplicationException {
-
-    	BufferedReader reader =
-            new BufferedReader(new InputStreamReader(in));
-        return (T) converter.convert(reader.readLine()).to(arg1);
-    }
+	@Override
+	public Object readFrom(
+			Class<Object> type, Type genericType, 
+			Annotation[] annotations, MediaType mediaType,
+			MultivaluedMap<String, String> httpHeaders, InputStream in) 
+					throws IOException, WebApplicationException {
+		BufferedReader reader = 
+				new BufferedReader(new InputStreamReader(in));
+		return converter.convert(reader.readLine()).to(genericType);
+	}
 }
