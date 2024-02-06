@@ -126,10 +126,12 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.service.jakartars</artifactId>
     </dependency>
+    <!-- The whiteboard implementation -->
     <dependency>
       <groupId>org.eclipse.osgi-technology.rest</groupId>
       <artifactId>org.eclipse.osgitech.rest</artifactId>
     </dependency>
+    <!-- The adapter to run the implementation with the OSGi Servlet Whiteboard -->
     <dependency>
       <groupId>org.eclipse.osgi-technology.rest</groupId>
       <artifactId>org.eclipse.osgitech.rest.servlet.whiteboard</artifactId>

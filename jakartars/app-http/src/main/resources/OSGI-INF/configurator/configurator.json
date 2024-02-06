@@ -6,13 +6,13 @@
     "org.osgi.service.http.port": "8080",
     "org.osgi.service.http.host": "localhost",
     "org.apache.felix.http.context_path": "",
-    "org.apache.felix.http.name": "Demo HTTP Whiteboard",
-    "org.apache.felix.http.runtime.init.id": "demo"
+    "org.apache.felix.http.name": "Modify REST Service",
+    "org.apache.felix.http.runtime.init.id": "modify"
   },
   "JakartarsServletWhiteboardRuntimeComponent~demo":
   {
-    "jersey.jakartars.whiteboard.name" : "Demo Jersey Whiteboard",
+    "jersey.jakartars.whiteboard.name" : "modify",
     "jersey.context.path" : "",
-    "osgi.http.whiteboard.target" : "(id=demo)"
+    "osgi.http.whiteboard.target" : "(id=modify)"
   }
 }

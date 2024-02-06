@@ -29,7 +29,6 @@
     <module>app-http</module>
   </modules>
 
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -214,35 +213,49 @@
         <artifactId>org.osgi.service.jakartars</artifactId>
         <version>2.0.0</version>
       </dependency>
+      <!-- The whiteboard implementation -->
       <dependency>
         <groupId>org.eclipse.osgi-technology.rest</groupId>
         <artifactId>org.eclipse.osgitech.rest</artifactId>
         <version>${jakartars.whiteboard.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <!-- The whiteboard implementation default configuration, when you want to use it -->
       <dependency>
         <groupId>org.eclipse.osgi-technology.rest</groupId>
         <artifactId>org.eclipse.osgitech.rest.config</artifactId>
         <version>${jakartars.whiteboard.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <!-- An optional fragment for the use of server sent events -->
       <dependency>
         <groupId>org.eclipse.osgi-technology.rest</groupId>
         <artifactId>org.eclipse.osgitech.rest.sse</artifactId>
         <version>${jakartars.whiteboard.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <!-- The adapter to run the implementation with Jetty -->
       <dependency>
         <groupId>org.eclipse.osgi-technology.rest</groupId>
         <artifactId>org.eclipse.osgitech.rest.jetty</artifactId>
         <version>${jakartars.whiteboard.version}</version>
         <scope>runtime</scope>
       </dependency>
+      <!-- The adapter to run the implementation with the OSGi Servlet Whiteboard -->
       <dependency>
         <groupId>org.eclipse.osgi-technology.rest</groupId>
         <artifactId>org.eclipse.osgitech.rest.servlet.whiteboard</artifactId>
         <version>${jakartars.whiteboard.version}</version>
         <scope>runtime</scope>
+      </dependency>
+
+      <!-- Jersey - explicitly added to be able to update the dependency that is provided by org.eclipse.osgi-technology.rest -->
+      <dependency>
+        <groupId>org.glassfish.jersey</groupId>
+        <artifactId>jersey-bom</artifactId>
+        <version>${jersey.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
       </dependency>
 
       <!-- Condition Service -->
@@ -260,6 +273,13 @@
       </dependency>
 
       <!--  Jetty  -->
+      <dependency>
+          <groupId>org.eclipse.jetty</groupId>
+          <artifactId>jetty-bom</artifactId>
+          <version>11.0.20</version>
+          <type>pom</type>
+      </dependency>
+
       <!-- 
         org.apache.felix.http.jetty:
         - implementation of the R8.1 OSGi Servlet Service, the R7 OSGi Http Service and the R7 OSGi Http Whiteboard Specification 
