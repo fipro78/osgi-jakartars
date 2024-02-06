@@ -9,11 +9,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ServiceScope;
-import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsExtension;
-import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsMediaType;
 import org.osgi.service.log.Logger;
 import org.osgi.service.log.LoggerFactory;
 import org.osgi.util.converter.Converter;
@@ -31,9 +27,6 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 
-@Component(scope = ServiceScope.PROTOTYPE)
-@JakartarsExtension
-@JakartarsMediaType(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.WILDCARD) // NOTE: required to support "non-standard" JSON variants
 @Produces(MediaType.APPLICATION_JSON)
 public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
