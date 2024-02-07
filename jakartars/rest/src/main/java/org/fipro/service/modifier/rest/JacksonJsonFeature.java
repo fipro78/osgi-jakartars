@@ -5,6 +5,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsExtension;
 import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsMediaType;
 
+import com.fasterxml.jackson.core.util.JacksonFeature;
+
 import jakarta.ws.rs.core.Feature;
 import jakarta.ws.rs.core.FeatureContext;
 import jakarta.ws.rs.core.MediaType;
@@ -16,7 +18,7 @@ public class JacksonJsonFeature implements Feature {
 
 	@Override
 	public boolean configure(FeatureContext context) {
-		context.register(JacksonJsonConverter.class);
+		context.register(JacksonFeature.class);
 		return true;
 	}
 }

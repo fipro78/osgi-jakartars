@@ -274,10 +274,10 @@
 
       <!--  Jetty  -->
       <dependency>
-          <groupId>org.eclipse.jetty</groupId>
-          <artifactId>jetty-bom</artifactId>
-          <version>11.0.20</version>
-          <type>pom</type>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-bom</artifactId>
+        <version>11.0.20</version>
+        <type>pom</type>
       </dependency>
 
       <!-- 
@@ -353,6 +353,11 @@
         <artifactId>jersey-media-sse</artifactId>
         <version>${jersey.version}</version>
         <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.glassfish.jersey.media</groupId>
+        <artifactId>jersey-media-json-jackson</artifactId>
+        <version>${jersey.version}</version>
       </dependency>
 
       <!-- extender that facilitates the use of JRE SPI providers -->
