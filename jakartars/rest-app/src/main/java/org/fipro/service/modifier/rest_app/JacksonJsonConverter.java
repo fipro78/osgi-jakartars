@@ -26,10 +26,12 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.ws.rs.ext.Provider;
 import jakarta.ws.rs.ext.Providers;
 
 @Consumes(MediaType.WILDCARD) // NOTE: required to support "non-standard" JSON variants
 @Produces(MediaType.APPLICATION_JSON)
+@Provider
 public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
 	private Logger logger = LoggerFactory.getLogger(JacksonJsonConverter.class);

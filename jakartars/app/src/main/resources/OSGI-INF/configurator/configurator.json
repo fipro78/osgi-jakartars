@@ -2,7 +2,7 @@
   ":configurator:resource-version": 1,
   "JakartarsWhiteboardComponent": {
     "jersey.port": 8080,
-    "jersey.jakartars.whiteboard.name" : "modify",
+    "jersey.jakartars.whiteboard.name" : "Jetty REST",
     "jersey.context.path" : ""
   }
 }
