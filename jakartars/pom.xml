@@ -25,6 +25,7 @@
     <module>api</module>
     <module>impl</module>
     <module>rest</module>
+    <module>rest-app</module>
     <module>app</module>
     <module>app-http</module>
   </modules>

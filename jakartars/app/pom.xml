@@ -250,6 +250,11 @@
       <artifactId>rest</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.fipro.service.modifier</groupId>
+      <artifactId>rest-app</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <dependency>
       <groupId>org.eclipse.parsson</groupId>

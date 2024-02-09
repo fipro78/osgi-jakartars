@@ -1,4 +1,4 @@
-package org.fipro.service.modifier.rest;
+package org.fipro.service.modifier.rest_app;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,12 +9,11 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.log.Logger;
-import org.osgi.service.log.LoggerFactory;
 import org.osgi.util.converter.Converter;
 import org.osgi.util.converter.ConverterFunction;
 import org.osgi.util.converter.Converters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,28 +21,48 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.ext.MessageBodyReader;
 import jakarta.ws.rs.ext.MessageBodyWriter;
+import jakarta.ws.rs.ext.Providers;
 
 @Consumes(MediaType.WILDCARD) // NOTE: required to support "non-standard" JSON variants
 @Produces(MediaType.APPLICATION_JSON)
 public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
 
-	@Reference(service = LoggerFactory.class)
-	private Logger logger;
+	private Logger logger = LoggerFactory.getLogger(JacksonJsonConverter.class);
 
 	private final Converter converter = Converters.newConverterBuilder()
 			.rule(String.class, this::toJson)
 			.rule(this::toObject)
 			.build();
 
-	private ObjectMapper mapper = new ObjectMapper();
-
+	// this class is implemented as plain Jakarta-RS Resource, so we need to get the ObjectMapper via Jakarta-RS injection.
+	
+	@Context
+    private Providers providers;
+	
+	private ObjectMapper mapper;
+	
+	private ObjectMapper getObjectMapper() {
+		if (this.mapper == null) {
+			if (providers != null) {
+				this.mapper = providers
+						.getContextResolver(ObjectMapper.class, MediaType.APPLICATION_JSON_TYPE)
+						.getContext(ObjectMapper.class);
+			} else {
+				this.mapper = new ObjectMapper();
+			}
+		}
+		
+		return this.mapper;
+	}
+	
 	private String toJson(Object value, Type targetType) {
 		try {
-			return mapper.writeValueAsString(value);
+			return getObjectMapper().writeValueAsString(value);
 		} catch (JsonProcessingException e) {
 			logger.error("error on JSON creation", e);
 			return e.getLocalizedMessage();
@@ -53,9 +72,9 @@ public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageB
 	private Object toObject(Object o, Type t) {
 		try {
 			if (List.class.getName().equals(t.getTypeName())) {
-				return this.mapper.readValue((String) o, List.class);
+				return getObjectMapper().readValue((String) o, List.class);
 			}
-			return this.mapper.readValue((String) o, String.class);
+			return getObjectMapper().readValue((String) o, String.class);
 		} catch (IOException e) {
 			logger.error("error on JSON parsing", e);
 		}
