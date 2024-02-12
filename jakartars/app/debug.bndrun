@@ -6,8 +6,7 @@ test-index: target/test-index.xml;name="app Test"
 
 -runproperties: \
     osgi.console=,\
-    osgi.console.enable.builtin=false,\
-    org.osgi.service.http.port=8282
+    osgi.console.enable.builtin=false
 
 -runrequires.debug: osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
  osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.runtime)',\
@@ -64,7 +63,9 @@ test-index: target/test-index.xml;name="app Test"
 	org.glassfish.jersey.inject.jersey-hk2;version='[3.1.5,3.1.6)',\
 	org.glassfish.jersey.media.jersey-media-jaxb;version='[3.1.5,3.1.6)',\
 	org.glassfish.jersey.media.jersey-media-json-jackson;version='[3.1.5,3.1.6)',\
+	org.glassfish.jersey.media.jersey-media-multipart;version='[3.1.5,3.1.6)',\
 	org.glassfish.jersey.media.jersey-media-sse;version='[3.1.5,3.1.6)',\
+	org.jvnet.mimepull;version='[1.9.15,1.9.16)',\
 	org.objectweb.asm;version='[9.6.0,9.6.1)',\
 	org.osgi.service.cm;version='[1.6.1,1.6.2)',\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\

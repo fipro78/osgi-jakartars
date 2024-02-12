@@ -11,7 +11,8 @@ index: target/index.xml;name="app"
 	bnd.identity;id='slf4j.simple',\
 	bnd.identity;id='org.apache.felix.http.jetty',\
     bnd.identity;id='com.sun.xml.bind.jaxb-osgi',\
-    bnd.identity;id='org.glassfish.jersey.media.jersey-media-json-jackson'
+    bnd.identity;id='org.glassfish.jersey.media.jersey-media-json-jackson',\
+    bnd.identity;id='org.glassfish.jersey.media.jersey-media-multipart'
 	
 -runfw: org.eclipse.osgi
 -runee: JavaSE-17
@@ -64,7 +65,9 @@ index: target/index.xml;name="app"
 	org.glassfish.jersey.inject.jersey-hk2;version='[3.1.5,3.1.6)',\
 	org.glassfish.jersey.media.jersey-media-jaxb;version='[3.1.5,3.1.6)',\
 	org.glassfish.jersey.media.jersey-media-json-jackson;version='[3.1.5,3.1.6)',\
+	org.glassfish.jersey.media.jersey-media-multipart;version='[3.1.5,3.1.6)',\
 	org.glassfish.jersey.media.jersey-media-sse;version='[3.1.5,3.1.6)',\
+	org.jvnet.mimepull;version='[1.9.15,1.9.16)',\
 	org.objectweb.asm;version='[9.6.0,9.6.1)',\
 	org.osgi.service.cm;version='[1.6.1,1.6.2)',\
 	org.osgi.service.component;version='[1.5.1,1.5.2)',\
