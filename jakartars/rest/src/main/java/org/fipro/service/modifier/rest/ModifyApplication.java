@@ -1,4 +1,4 @@
-package org.fipro.service.modifier.rest_app;
+package org.fipro.service.modifier.rest;
 
 import java.util.Set;
 
@@ -15,6 +15,8 @@ public class ModifyApplication extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(JacksonJsonConverter.class);
+        return Set.of(
+        		CustomObjectMapperProvider.class, 
+        		JacksonJsonConverter.class);
     }
 }

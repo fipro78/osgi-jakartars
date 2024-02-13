@@ -1,4 +1,4 @@
-package org.fipro.service.modifier.rest_app;
+package org.fipro.service.modifier.rest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +29,7 @@ import jakarta.ws.rs.ext.MessageBodyWriter;
 import jakarta.ws.rs.ext.Provider;
 import jakarta.ws.rs.ext.Providers;
 
-@Consumes(MediaType.WILDCARD) // NOTE: required to support "non-standard" JSON variants
+@Consumes(MediaType.WILDCARD)
 @Produces(MediaType.APPLICATION_JSON)
 @Provider
 public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageBodyWriter<Object> {
@@ -39,10 +39,8 @@ public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageB
 	private final Converter converter = Converters.newConverterBuilder()
 			.rule(String.class, this::toJson)
 			.rule(this::toObject)
-			.build();
+      .build();
 
-	// this class is implemented as plain Jakarta-RS Resource, so we need to get the ObjectMapper via Jakarta-RS injection.
-	
 	@Context
     private Providers providers;
 	
@@ -61,7 +59,7 @@ public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageB
 		
 		return this.mapper;
 	}
-	
+
 	private String toJson(Object value, Type targetType) {
 		try {
 			return getObjectMapper().writeValueAsString(value);
@@ -114,7 +112,7 @@ public class JacksonJsonConverter implements MessageBodyReader<Object>, MessageB
 			Annotation[] annotations, MediaType mediaType,
 			MultivaluedMap<String, String> httpHeaders, InputStream in) 
 					throws IOException, WebApplicationException {
-		
+
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		return converter.convert(reader.readLine()).to(genericType);
 	}

@@ -11,10 +11,9 @@ import org.fipro.service.modifier.api.StringModifier;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsApplicationSelect;
 import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsName;
-//import org.osgi.service.jakartars.whiteboard.propertytypes.JSONRequired;
 import org.osgi.service.jakartars.whiteboard.propertytypes.JakartarsResource;
-//import org.osgi.service.servlet.whiteboard.propertytypes.HttpWhiteboardResource;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.FormParam;
@@ -28,6 +27,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
+@JakartarsResource
+@JakartarsName("modifier")
 @Component(
 		service = ModifierRestService.class, 
 		scope = ServiceScope.PROTOTYPE,
@@ -37,14 +38,9 @@ import jakarta.ws.rs.core.Response.Status;
 				"osgi.http.whiteboard.resource.pattern=/files/*",
 				"osgi.http.whiteboard.resource.prefix=static"
 		})
-//@HttpWhiteboardResource(pattern = "/files/*", prefix = "static")
-@JakartarsResource
-@JakartarsName("modifier")
-// We don't use @JSONRequired, as we use the JacksonFeature provided by Jetty, 
-// which does not provide the corresponding capability via @JakartarsMediaType(MediaType.APPLICATION_JSON)
-// @JSONRequired
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
+@JakartarsApplicationSelect("(osgi.jakartars.name=*)")
 public class ModifierRestService {
 
 	@Reference
@@ -53,7 +49,9 @@ public class ModifierRestService {
 	@GET
 	@Path("modify/{input}")
 	public List<String> modify(@PathParam("input") String input) {
-		return modifier.stream().map(mod -> mod.modify(input)).collect(Collectors.toList());
+		return modifier.stream()
+				.map(mod -> mod.modify(input))
+				.collect(Collectors.toList());
 	}
 
 	@GET
@@ -61,13 +59,17 @@ public class ModifierRestService {
 	@Produces(MediaType.TEXT_HTML)
 	@HtmlModification
 	public String modifyHtml(@PathParam("input") String input) {
-		return modifier.stream().map(mod -> mod.modify(input)).collect(Collectors.joining(";"));
+		return modifier.stream()
+				.map(mod -> mod.modify(input))
+				.collect(Collectors.joining(";"));
 	}
 
 	@GET
 	@Path("pretty/{input}")
 	public Result pretty(@PathParam("input") String input) {
-		List<String> result = modifier.stream().map(mod -> mod.modify(input)).collect(Collectors.toList());
+		List<String> result = modifier.stream()
+				.map(mod -> mod.modify(input))
+				.collect(Collectors.toList());
 
 		return new Result(input, result);
 	}

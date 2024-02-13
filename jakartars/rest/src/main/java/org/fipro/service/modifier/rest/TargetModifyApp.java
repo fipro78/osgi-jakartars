@@ -1,4 +1,4 @@
-package org.fipro.service.modifier.rest_app;
+package org.fipro.service.modifier.rest;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
