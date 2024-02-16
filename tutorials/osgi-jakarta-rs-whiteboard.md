@@ -1612,8 +1612,6 @@ If you have also created the _app-http_ module, perform the above modifications 
 **_Note_:**  
 If the execution of _Resolve_ does not take the new changes into account, you need to execute a Maven build `mvn clean verify`, update the projects via _Right Click -> Maven -> Update Project..._, and then trigger _Resolve_ from the _Bnd Run File Editor_  again.
 
-TODO verify with additional application
-
 **_Note_:**  
 The `org.glassfish.jersey.jackson.JacksonFeature` is automatically registered with all applications in the server. This way the OSGi requirement on the JSON media type via `osgi.jakartars.media.type=application/json` service property is not satisfied. If you want to use the `org.glassfish.jersey.jackson.JacksonFeature` and use the OSGi capability mechanism, you could register it via Jakarta-RS Feature Whiteboard Extension (see below).
 
