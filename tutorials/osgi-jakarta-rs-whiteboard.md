@@ -1103,7 +1103,7 @@ We add the bundle `org.apache.felix.http.jetty` to the _Run Blacklist_ to avoid 
 If the _Run Bundles_ stay empty, or you see the bundles and shortly afterwards they are gone again, try to set the _Resolution_ to _Auto_ and save the file. This should then solve the issue afterwards.
 
 **_Note:_**  
-[Eclipse Parsson](https://projects.eclipse.org/projects/ee4j.parsson) provides an implementation of Jakarta JSON Processing Specification. It is required by the _Jakarta RESTful Web Services implementation_, but unfortunately there is no direct requirement to an implementation. Therefore it is not resolved automatically and needs to be specified as _Run Requirement_ explicitly.
+[Eclipse Parsson](https://projects.eclipse.org/projects/ee4j.parsson) provides an implementation of Jakarta JSON Processing Specification. It is required by the _Jakarta RESTful Web Services implementation_ if you configure it via the [OSGi Compendium Configurator Specification](https://docs.osgi.org/specification/osgi.cmpn/8.1.0/service.configurator.html), but unfortunately there is no direct requirement to an implementation. Therefore it is not resolved automatically and needs to be specified as _Run Requirement_ explicitly.
 
 - Click on _Run OSGi_
 - Open a browser and navigate to [http://localhost:8080/modify/fubar](http://localhost:8080/modify/fubar) to see the new REST based service in action.
@@ -1311,7 +1311,7 @@ index: target/index.xml;name="app-http"
 If the _Run Bundles_ stay empty, or you see the bundles and shortly afterwards they are gone again, try to set the _Resolution_ to _Auto_ and save the file. This should then solve the issue afterwards.
 
 **_Note:_**  
-[Eclipse Parsson](https://projects.eclipse.org/projects/ee4j.parsson) provides an implementation of Jakarta JSON Processing Specification. It is required by the _Jakarta RESTful Web Services implementation_, but unfortunately there is no direct requirement to an implementation. Therefore it is not resolved automatically and needs to be specified as _Run Requirement_ explicitly.
+[Eclipse Parsson](https://projects.eclipse.org/projects/ee4j.parsson) provides an implementation of Jakarta JSON Processing Specification. It is required by the _Jakarta RESTful Web Services implementation_ if you configure it via the [OSGi Compendium Configurator Specification](https://docs.osgi.org/specification/osgi.cmpn/8.1.0/service.configurator.html), but unfortunately there is no direct requirement to an implementation. Therefore it is not resolved automatically and needs to be specified as _Run Requirement_ explicitly.
 
 - Click on _Run OSGi_
 - Open a browser and navigate to [http://localhost:8080/modify/fubar](http://localhost:8080/modify/fubar) to see the new REST based service in action.
@@ -1326,6 +1326,44 @@ If you specify `org.apache.felix.http.context_path` and `jersey.context.path`, t
 "jersey.context.path" : "demo"
 ```
 Would result in the path **http://localhost:8080/http/demo/modify/fubar**
+
+It is also possible to register the Jakarta-RS Whiteboard Service with the default Jetty. In this case the configuration is much simpler:
+
+```json
+{
+  ":configurator:resource-version": 1,
+  
+  "JakartarsServletWhiteboardRuntimeComponent":
+  {
+    "jersey.jakartars.whiteboard.name" : "Servlet REST",
+    "jersey.context.path" : "rest"
+  }
+}
+```
+
+And of course you need to remove `org.osgi.service.http.port=-1` from the `runproperties`, otherwise the default Jetty instance doesn't start. It is important that you provide a configuration, either via Configurator or even manually via ConfigurationAdmin, as the `JakartarsServletWhiteboardRuntimeComponent` requires a configuration.
+
+The following snippet shows how you could provide a configuration programmatically via _Immediate Component_:
+
+```java
+@Component
+public class JakartaRsConfiguration {
+
+  @Reference
+  ConfigurationAdmin admin;
+  
+  @Activate
+  void activate() throws IOException {
+    Dictionary<String, String> properties = new Hashtable<>();
+    properties.put("jersey.jakartars.whiteboard.name", "Servlet REST");
+    properties.put("jersey.context.path", "rest");
+ 
+    Configuration config = 
+        admin.getConfiguration("JakartarsServletWhiteboardRuntimeComponent", "?");
+    config.update(properties);
+  }
+}
+```
 
 **_Note:_**  
 If you see the following warning and want to get rid of it 
