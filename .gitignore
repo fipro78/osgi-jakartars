@@ -9,7 +9,7 @@ target/
 generated/
 
 #Ignore all .settings folders
-*/.settings/
+**/.settings/
 
 #Ignore vi temporary files
 *~
@@ -31,3 +31,6 @@ node_modules
 *.vsix
 plugins
 gen-webpack.config.js
+
+# build result jar files in the checkpoint_container folder
+checkpoint_container/*.jar

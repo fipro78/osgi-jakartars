@@ -1,0 +1,9 @@
+type: FILE
+path: **/*.jar
+action: reopen
+warn: false
+---
+type: FILE
+path: **/bundleFile
+action: reopen
+warn: false

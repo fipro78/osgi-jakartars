@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fipro.service.modifier</groupId>
+    <artifactId>jakartars</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>crac</artifactId>
+
+  <name>crac</name>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>osgi.annotation</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.service.component.annotations</artifactId>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.crac</groupId>
+      <artifactId>crac</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.eclipse.osgi-technology.rest</groupId>
+      <artifactId>org.eclipse.osgitech.rest</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.felix</groupId>
+      <artifactId>org.apache.felix.http.jetty</artifactId>
+      <scope>compile</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>biz.aQute.bnd</groupId>
+        <artifactId>bnd-baseline-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -191,6 +191,11 @@
       <artifactId>logback-core</artifactId>
     </dependency>
     <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jul-to-slf4j</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+    <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>1.7.36</version>
@@ -273,6 +278,12 @@
       <artifactId>rest</artifactId>
       <version>${project.version}</version>
     </dependency>
+
+    <dependency>
+      <groupId>org.fipro.service.modifier</groupId>
+      <artifactId>crac</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
@@ -294,6 +305,7 @@
         <configuration>
           <bndruns>
             <bndrun>app.bndrun</bndrun>
+            <bndrun>app-crac.bndrun</bndrun>
             <bndrun>debug.bndrun</bndrun>
           </bndruns>
         </configuration>
@@ -304,9 +316,54 @@
         <configuration>
           <bndruns>
             <bndrun>app.bndrun</bndrun>
+            <bndrun>app-crac.bndrun</bndrun>
             <bndrun>debug.bndrun</bndrun>
           </bndruns>
         </configuration>
+      </plugin>
+      
+      <!-- delete copied jar from checkpoint_container folder -->
+      <plugin>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>3.3.2</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>${basedir}/../../checkpoint_container</directory>
+              <includes>
+                <include>app.jar</include>
+                <include>app-crac.jar</include>
+              </includes>
+            </fileset>
+          </filesets>
+        </configuration>
+      </plugin>
+      
+      <!-- copy resulting executable jar to the checkpoint_container folder -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>copy-configuration</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/../../checkpoint_container</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${project.build.directory}</directory>
+                  <includes>
+                    <include>app.jar</include>
+                    <include>app-crac.jar</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

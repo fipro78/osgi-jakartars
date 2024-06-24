@@ -24,6 +24,7 @@
     <module>api</module>
     <module>impl</module>
     <module>rest</module>
+    <module>crac</module>
     <module>app</module>
     <module>app-http</module>
   </modules>
@@ -423,6 +424,13 @@
             <artifactId>org.osgi.compendium</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <!-- org.crac -->
+      <dependency>
+        <groupId>org.crac</groupId>
+        <artifactId>crac</artifactId>
+        <version>1.5.0</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
