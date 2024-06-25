@@ -13,14 +13,14 @@ while getopts "h" flag; do
    echo This script is used to build a Java application container with a checkpoint using the Azul Zulu OpenJDK with CRaC
    echo
    echo Use it in the following format:
-   echo "  build_crac.bat <docker|podman> <variant>"
+   echo "  ./build_crac.bat <docker|podman> <variant>"
    echo
    echo The following variants are available to build
    echo "  ubuntu_jdk (default)"
    echo "  ubuntu_jre"
    echo "  alpine_jre"
    echo
-   echo Example: build_crac.bat podman alpine_jre
+   echo Example: ./build_crac.bat podman alpine_jre
    exit 0
    ;;
  esac

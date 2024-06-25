@@ -6,7 +6,9 @@ FROM ${IMAGE_NAME}:${VERSION}
 ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \
 -Djdk.crac.resource-policies=/app/fd_policies.yaml \
--Dorg.crac.Core.Compat=jdk.crac"
+-Dorg.crac.Core.Compat=jdk.crac \
+-Dopenj9.internal.criu.unprivilegedMode=true \
+-Dopenj9.internal.criu.tcpEstablished=true"
 
 USER root
 
