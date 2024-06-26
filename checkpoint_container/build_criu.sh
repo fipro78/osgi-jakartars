@@ -22,13 +22,13 @@ while getopts "h" flag; do
    echo This script is used to build a Java application container with a checkpoint using the OpenJ9 CRIU Support
    echo
    echo Use it in the following format:
-   echo "  ./build_criu.bat <docker|podman> <variant>"
+   echo "  ./build_criu.sh <docker|podman> <variant>"
    echo
    echo The following variants are available to build
    echo "  ubi_crac_jre (default)"
    echo "  ubi_crac_jdk"
    echo
-   echo Example: ./build_criu.bat podman ubi_crac_jre
+   echo Example: ./build_criu.sh podman ubi_crac_jre
    exit 0
    ;;
  esac
