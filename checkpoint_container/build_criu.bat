@@ -15,17 +15,17 @@ if "%1"=="" (
    echo   "build_criu.bat <docker|podman> <variant>"
    echo:
    echo The following variants are available to build
-   echo   ubi9_crac_jre [default]
-   echo   ubi9_crac_jdk
+   echo   ubi_crac_jre [default]
+   echo   ubi_crac_jdk
    echo:
-   echo Example: build_criu.bat podman ubi9_crac_jre
+   echo Example: build_criu.bat podman ubi_crac_jre
    exit /b
 ) else (
    echo The first parameter for this script needs to be either "docker" or "podman"!
    exit /b
 )
 
-if "%2"=="" (SET VAR_RUNTIME=ubi9_crac_jre) else (SET VAR_RUNTIME=%2)
+if "%2"=="" (SET VAR_RUNTIME=ubi_crac_jre) else (SET VAR_RUNTIME=%2)
 
 for /f "tokens=1,2,3 delims=_" %%a in ("%VAR_RUNTIME%") do (
   SET VAR=%%a_%%b
@@ -33,9 +33,9 @@ for /f "tokens=1,2,3 delims=_" %%a in ("%VAR_RUNTIME%") do (
 )
 
 if "%RUNTIME%"=="jdk" (
-   SET VERSION=open-21-jdk-ubi9
+   SET VERSION=open-21-jdk-ubi-minimal
 ) else (
-   SET VERSION=open-21-jre-ubi9
+   SET VERSION=open-21-jre-ubi-minimal
 )
 
 SET CHECKPOINT_NAME=criu_%VAR%_checkpoint
