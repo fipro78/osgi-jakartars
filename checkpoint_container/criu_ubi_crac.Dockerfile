@@ -1,5 +1,5 @@
 ARG IMAGE_NAME=icr.io/appcafe/ibm-semeru-runtimes
-ARG VERSION=open-21-jre-ubi9
+ARG VERSION=open-21-jre-ubi-minimal
 
 FROM ${IMAGE_NAME}:${VERSION}
 
@@ -7,12 +7,9 @@ ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \
 -Djdk.crac.resource-policies=/app/fd_policies.yaml \
 -Dorg.crac.Core.Compat=jdk.crac \
--Dopenj9.internal.criu.unprivilegedMode=true \
--Dopenj9.internal.criu.tcpEstablished=true"
+-Dopenj9.internal.criu.unprivilegedMode=true"
 
 USER root
-
-RUN setcap cap_checkpoint_restore,cap_sys_ptrace,cap_setpcap=eip /usr/local/sbin/criu
 
 EXPOSE 8080
 

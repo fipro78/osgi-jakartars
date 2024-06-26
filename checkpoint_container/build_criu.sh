@@ -1,15 +1,15 @@
 #! /bin/bash
 
 CMD=${1:-docker}
-VAR_RUNTIME=${2:-ubi9_crac_jre}
+VAR_RUNTIME=${2:-ubi_crac_jre}
 VAR=${VAR_RUNTIME%_*}
 RUNTIME=${VAR_RUNTIME##*_}
 
 if [ "$RUNTIME" == "jdk" ]
 then 
-  VERSION="open-21-jdk-ubi9"
+  VERSION="open-21-jdk-ubi-minimal"
 else
-  VERSION="open-21-jre-ubi9"
+  VERSION="open-21-jre-ubi-minimal"
 fi
 
 CHECKPOINT_NAME=criu_${VAR}_checkpoint
@@ -25,10 +25,10 @@ while getopts "h" flag; do
    echo "  ./build_criu.bat <docker|podman> <variant>"
    echo
    echo The following variants are available to build
-   echo "  ubi9_crac_jre (default)"
-   echo "  ubi9_crac_jdk"
+   echo "  ubi_crac_jre (default)"
+   echo "  ubi_crac_jdk"
    echo
-   echo Example: ./build_criu.bat podman ubi9_crac_jre
+   echo Example: ./build_criu.bat podman ubi_crac_jre
    exit 0
    ;;
  esac
