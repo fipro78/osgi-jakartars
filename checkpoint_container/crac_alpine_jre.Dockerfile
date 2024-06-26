@@ -27,7 +27,6 @@ RUN \
   apk --no-cache add tini; \
   tar --extract --file $JAVA_HOME/openjdk.tar.gz --directory "$JAVA_HOME" --strip-components 1; \
   rm $JAVA_HOME/openjdk.tar.gz; \
-  apt-get clean; \
   mkdir -p /app/checkpoint; \
   chmod 755 /app/start.sh
 
