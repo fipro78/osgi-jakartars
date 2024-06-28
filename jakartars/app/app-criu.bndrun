@@ -1,0 +1,23 @@
+index: target/index.xml;name="app-criu"
+
+-standalone: ${index}
+
+-runsystempackages: org.eclipse.openj9.criu
+
+-runrequires: \
+    bnd.identity;id='org.fipro.service.modifier.impl',\
+    bnd.identity;id='org.fipro.service.modifier.rest',\
+    bnd.identity;id='org.fipro.service.modifier.criu',\
+    bnd.identity;id='org.fipro.service.modifier.app',\
+    bnd.identity;id='org.eclipse.parsson.jakarta.json',\
+    bnd.identity;id='com.sun.xml.bind.jaxb-osgi',\
+    bnd.identity;id='org.glassfish.jersey.media.jersey-media-multipart',\
+    bnd.identity;id='slf4j.simple'
+
+-runfw: org.eclipse.osgi
+-runee: JavaSE-17
+-resolve.effective: active
+
+-runblacklist: \
+    bnd.identity;id='org.apache.felix.http.jetty'
+-resolve: manual
