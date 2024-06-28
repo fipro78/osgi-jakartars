@@ -19,10 +19,7 @@ COPY start.sh /app/
 
 RUN apt-get update -y
 
-# ADD "https://cdn.azul.com/zulu/bin/zulu17.50.19-ca-crac-jdk17.0.11-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 # ADD "https://cdn.azul.com/zulu/bin/zulu17.50.21-ca-crac-jre17.0.11-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
-
-# ADD "https://cdn.azul.com/zulu/bin/zulu21.30.23-ca-crac-jdk21.0.1-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 ADD "https://cdn.azul.com/zulu/bin/zulu21.34.21-ca-crac-jre21.0.3-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 
 RUN \

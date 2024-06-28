@@ -1,0 +1,157 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Build Jakarta RS App",
+        "type": "shell",
+        "command": "mvn clean verify -f ./jakartars/pom.xml",
+        "group": "build",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Ubuntu JDK CRaC Docker Image",
+        "type": "shell",
+        "command": "docker build -t application_checkpoint -f ./checkpoint_container/crac_ubuntu_jdk.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Ubuntu JRE CRaC Docker Image",
+        "type": "shell",
+        "command": "docker build -t application_checkpoint -f ./checkpoint_container/crac_ubuntu_jre.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Alpine JRE CRaC Docker Image",
+        "type": "shell",
+        "command": "docker build -t application_checkpoint -f ./checkpoint_container/crac_alpine_jre.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build OpenJ9 CRaC Docker Image",
+        "type": "shell",
+        "command": "docker build -t application_checkpoint -f ./checkpoint_container/criu_ubi_crac.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build OpenJ9 CRIU Docker Image",
+        "type": "shell",
+        "command": "docker build -t application_checkpoint -f ./checkpoint_container/criu_ubi_openj9.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run CRaC Checkpoint Docker Container",
+        "type": "shell",
+        "command": "docker run -it --network=host --cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --name application_checkpoint application_checkpoint",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run OpenJ9 Checkpoint Docker Container",
+        "type": "shell",
+        "command": "docker run -it --network=host --cap-drop=ALL --cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --cap-add=SETPCAP --security-opt seccomp=unconfined --name application_checkpoint application_checkpoint",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run CRaC Restore Ubuntu JDK Docker Container",
+        "type": "shell",
+        "command": "docker run -it --rm --network=host --name restore_test crac_ubuntu_jdk_restore:latest",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run CRaC Restore Ubuntu JRE Docker Container",
+        "type": "shell",
+        "command": "docker run -it --rm --network=host --name restore_test crac_ubuntu_jre_restore:latest",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run CRaC Restore Alpine JRE Docker Container",
+        "type": "shell",
+        "command": "docker run -it --rm --network=host --name restore_test crac_alpine_jre_restore:latest",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Connect to Checkpoint Docker Container",
+        "type": "shell",
+        "command": "docker exec -ti application_checkpoint /bin/bash",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Connect to Restore Docker Container",
+        "type": "shell",
+        "command": "docker exec -ti restore_test /bin/bash",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Open Jakarta RS App",
+        "command": "${input:openSimpleBrowser}",
+        "problemMatcher": [],
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+    ],
+    "inputs": [
+        {
+            "id": "openSimpleBrowser",
+            "type": "command",
+            "command": "simpleBrowser.show",
+            "args": [
+                "http://localhost:8080/modify/fubar"
+            ]
+        }
+    ]
+  }

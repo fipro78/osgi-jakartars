@@ -29,6 +29,6 @@ public class CheckpointCreationComponent {
                 e.printStackTrace();
             }
         }, 
-        5, TimeUnit.SECONDS);
+        10, TimeUnit.SECONDS);
     }
 }

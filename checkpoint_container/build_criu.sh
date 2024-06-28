@@ -12,8 +12,8 @@ else
   VERSION="open-21-jre-ubi-minimal"
 fi
 
-CHECKPOINT_NAME=criu_${VAR}_checkpoint
-RESTORE_NAME=criu_${VAR}_restore
+CHECKPOINT_NAME=criu_${VAR_RUNTIME}_checkpoint
+RESTORE_NAME=criu_${VAR_RUNTIME}_restore
 
 while getopts "h" flag; do
  case $flag in
