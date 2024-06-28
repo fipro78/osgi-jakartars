@@ -1,34 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <groupId>org.fipro.service.modifier</groupId>
   <artifactId>jakartars</artifactId>
   <version>1.0.0-SNAPSHOT</version>
-
   <packaging>pom</packaging>
-
   <name>jakartars</name>
-
   <properties>
-    <java.version>17</java.version>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <bnd.version>7.0.0</bnd.version>
     <jakartars.whiteboard.version>1.2.2</jakartars.whiteboard.version>
     <jersey.version>3.1.5</jersey.version>
   </properties>
-
   <modules>
     <module>api</module>
     <module>impl</module>
     <module>rest</module>
     <module>crac</module>
+    <module>criu</module>
     <module>app</module>
     <module>app-http</module>
   </modules>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -43,7 +37,6 @@
         <version>8.1.0</version>
         <scope>provided</scope>
       </dependency>
-
       <!--  The OSGi framework RI is Equinox  -->
       <dependency>
         <groupId>org.eclipse.platform</groupId>
@@ -51,7 +44,6 @@
         <version>3.18.600</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  Declarative Services  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -76,7 +68,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-
       <!--  Configuration Admin  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -89,7 +80,6 @@
         <version>1.9.26</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  OSGi Configurator  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -109,7 +99,6 @@
         <version>2.0.2</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  Event Admin  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -122,7 +111,6 @@
         <version>1.6.200</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  Log Stream Service  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -136,7 +124,6 @@
         <version>1.1.100</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  Metatype  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -154,7 +141,6 @@
         <version>1.6.300</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  OSGi Converter  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -162,7 +148,6 @@
         <version>1.0.9</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  OSGi Function  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -170,7 +155,6 @@
         <version>1.2.0</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  OSGi Promise  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -178,7 +162,6 @@
         <version>1.3.0</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  OSGi PushStream  -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -186,7 +169,6 @@
         <version>1.1.0</version>
         <scope>runtime</scope>
       </dependency>
-
       <!-- Jakarta Servlet Whiteboard -->
       <dependency>
         <groupId>org.osgi</groupId>
@@ -200,7 +182,6 @@
         <version>1.2.2</version>
       </dependency>
       -->
-
       <!-- Jakarta RESTful Web Services Whiteboard -->
       <dependency>
         <groupId>jakarta.ws.rs</groupId>
@@ -248,7 +229,6 @@
         <version>${jakartars.whiteboard.version}</version>
         <scope>runtime</scope>
       </dependency>
-
       <!-- Jersey - explicitly added to be able to update the dependency that is provided by org.eclipse.osgi-technology.rest -->
       <dependency>
         <groupId>org.glassfish.jersey</groupId>
@@ -257,21 +237,18 @@
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
       <!-- Condition Service -->
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.service.condition</artifactId>
         <version>1.0.0</version>
       </dependency>
-
       <!-- Tracker -->
       <dependency>
         <groupId>org.osgi</groupId>
         <artifactId>org.osgi.util.tracker</artifactId>
         <version>1.5.4</version>
       </dependency>
-
       <!--  Jetty  -->
       <dependency>
         <groupId>org.eclipse.jetty</groupId>
@@ -279,7 +256,6 @@
         <version>11.0.20</version>
         <type>pom</type>
       </dependency>
-
       <!-- 
         org.apache.felix.http.jetty:
         - implementation of the R8.1 OSGi Servlet Service, the R7 OSGi Http Service and the R7 OSGi Http Whiteboard Specification 
@@ -291,7 +267,6 @@
         <version>5.1.8</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  Http Servlet 3.1 API with contract  -->
       <dependency>
         <groupId>org.apache.felix</groupId>
@@ -300,7 +275,6 @@
         <!-- <version>3.0.0</version> -->
         <scope>runtime</scope>
       </dependency>
-
       <!-- Java XML -->
       <dependency>
         <groupId>jakarta.xml.bind</groupId>
@@ -313,7 +287,6 @@
         <version>4.0.4</version>
         <scope>runtime</scope>
       </dependency>
-
       <!-- JSON Support -->
       <dependency>
         <groupId>jakarta.json</groupId>
@@ -335,13 +308,11 @@
         <artifactId>jackson-jakarta-rs-json-provider</artifactId>
         <version>2.16.0</version>
       </dependency>
-
       <dependency>
         <groupId>org.eclipse.parsson</groupId>
         <artifactId>jakarta.json</artifactId>
         <version>1.1.5</version>
       </dependency>
-
       <!-- extender that facilitates the use of JRE SPI providers -->
       <dependency>
         <groupId>org.apache.aries.spifly</groupId>
@@ -355,7 +326,6 @@
         <version>1.0.3</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  Several implementations need to log using SLF4J  -->
       <dependency>
         <groupId>org.slf4j</groupId>
@@ -375,7 +345,6 @@
         <version>1.2.12</version>
         <scope>runtime</scope>
       </dependency>
-
       <!--  The Web Console  -->
       <dependency>
         <groupId>org.apache.felix</groupId>
@@ -395,7 +364,6 @@
         <version>1.1.0</version>
         <scope>test</scope>
       </dependency>
-
       <!--  The Gogo Shell  -->
       <dependency>
         <groupId>org.apache.felix</groupId>
@@ -425,7 +393,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-
       <!-- org.crac -->
       <dependency>
         <groupId>org.crac</groupId>
@@ -434,7 +401,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <build>
     <pluginManagement>
       <plugins>
@@ -442,11 +408,7 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.11.0</version>
-          <configuration>
-            <release>${java.version}</release>
-          </configuration>
         </plugin>
-
         <!-- Use the bnd-maven-plugin and assemble the symbolic names -->
         <plugin>
           <groupId>biz.aQute.bnd</groupId>
@@ -524,7 +486,7 @@ Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
           <version>${bnd.version}</version>
           <configuration>
             <failOnChanges>false</failOnChanges>
-            <bndruns></bndruns>
+            <bndruns/>
           </configuration>
           <executions>
             <execution>
@@ -585,5 +547,4 @@ Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
       </plugins>
     </pluginManagement>
   </build>
-
 </project>
