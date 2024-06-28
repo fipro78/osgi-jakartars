@@ -20,6 +20,8 @@ if "%1"=="" (
    echo The following variants are available to build
    echo   ubi_crac_jre [default]
    echo   ubi_crac_jdk
+   echo   ubi_openj9_jre
+   echo   ubi_openj9_jdk
    echo:
    echo Example: build_criu.bat podman ubi_crac_jre
    exit /b
