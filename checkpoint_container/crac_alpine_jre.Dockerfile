@@ -1,7 +1,7 @@
 FROM alpine:3.20
 
-ENV JAVA_HOME /opt/jdk
-ENV PATH $JAVA_HOME/bin:$PATH
+ENV JAVA_HOME=/opt/jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \

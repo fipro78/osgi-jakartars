@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
-ENV JAVA_HOME /opt/jdk
-ENV PATH $JAVA_HOME/bin:$PATH
+ENV JAVA_HOME=/opt/jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
 
 ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \
