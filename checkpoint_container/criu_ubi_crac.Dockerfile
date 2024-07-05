@@ -18,7 +18,7 @@ COPY app-crac.jar /app/app.jar
 # copy the file descriptor policies to the image
 COPY fd_policies.yaml /app/
 # copy the shell scripts to the image
-COPY start.sh /app/
+COPY start_redirect.sh /app/start.sh
 
 # create the folder for the crac files inside the image
 RUN \

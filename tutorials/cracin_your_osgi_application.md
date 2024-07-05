@@ -1380,7 +1380,7 @@ Remember that if you are on Windows 11 and use a WSL2 with `networkingMode=mirro
 
 **OpenJDK CRaC - Docker Desktop from Windows Host**
 
-Starting a container that uses the Azul Zulu JRE with CRaC on Windows fails with a PID error. Although everything is prepared to run in an unprivileged mode, it is necessary on Windows to add the `CHECKPOINT_RESTORE` capability. So the command to start the container needs to look like this
+Starting a container that uses the Azul Zulu JRE with CRaC on Windows with Docker Desktop fails with a PID error. Although everything is prepared to run in an unprivileged mode, it is necessary on Windows to add the `CHECKPOINT_RESTORE` capability. So the command to start the container needs to look like this
 
 ```
 docker run ^
@@ -1428,6 +1428,15 @@ One solution to this is to tie stdin to /dev/null and redirect stdout and stderr
 . ./start_create_checkpoint.sh &
 exec java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar 0</dev/null 1>/app/crac-files/stdout 2>/app/crac-files/stderr
 ```
+
+__*Note:*__  
+Redirecting std out/err/in to files lead to errors on restore with OpenJDK CRaC, e.g.
+
+```
+Error (criu/files-reg.c:2097): File app/checkpoint/stderr has bad size 9521 (expect 9514)
+```
+
+So for CRaC we ignore the issue, for OpenJ9 we need to redirect to files.
 
 Other options would be to configure logging to directly write to log files and ensure programmatically that the log files are handled on checkpoint and restore. But this topic actually extends the scope of this blog post, so I will not cover it further here.
 
@@ -1510,12 +1519,14 @@ If you have not heard about the WSL2 networking mode, here are some resources ab
 
 ### Build the containers on Windows host with Podman  
 
-If you want to build the containers with Podman on a Windows host (which means you have Podman Desktop installed), and you use `networkingMode=mirrored` you need to use the `--network host` parameter so the container is able to communicate to the outside world. Otherwise you will get an error similar to the following, when trying to install packages in the container:
+If you want to build the containers with Podman on a Windows host (which means you have Podman Desktop installed) you need to use the `--network host` parameter so the container is able to communicate to the outside world. Otherwise you will get an error similar to the following, when trying to install packages in the container:
 
 ```
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
 WARNING: fetching https://dl-cdn.alpinelinux.org/alpine/v3.20/community: temporary error (try again later)
 ```
+
+You also need to disable the default seccomp profile on running the container for checkpoint creation to avoid `Operation not permitted` errors (similar to OpenJ9).
 
 ## Checkpoint Costs
 

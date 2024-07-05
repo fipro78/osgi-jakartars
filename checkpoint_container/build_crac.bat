@@ -4,12 +4,15 @@ setlocal EnableDelayedExpansion
 if "%1"=="" (
    SET CMD=docker
    SET NETWORK=
+   SET SECCOMP=
 ) else if "%1"=="docker" (
    SET CMD=docker
    SET NETWORK=
+   SET SECCOMP=
 ) else if "%1"=="podman" (
    SET CMD=podman
    SET NETWORK=--network host
+   SET SECCOMP=--security-opt seccomp=unconfined
 ) else if "%1"=="-h" (
    echo:
    echo This script is used to build a Java application container with a checkpoint using the Azul Zulu OpenJDK with CRaC
@@ -40,7 +43,7 @@ rem first build the image to create the checkpoint
 rem run the container with necessary capabilities
 %CMD% run ^
 -it ^
---cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE ^
+--cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE %SECCOMP% ^
 --name %CHECKPOINT_NAME% ^
 %CHECKPOINT_NAME%
 
