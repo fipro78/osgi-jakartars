@@ -162,13 +162,25 @@ RUN \
 ```
 
 __*Note:*__  
-In order to be able to create a directory in the IBM Semeru Runtime image, you need to switch the user to `root` via 
+The Semeru images based on UBI 8 and 9 specify a non-root user (`USER 1001`) to run as inside the container. Trying to create a directory on top level will result in a `Permission denied` error when trying to build the image.
+In order to be able to create a directory in the IBM Semeru UBI Runtime image, you need to switch the user to `root` via 
 
 ```dockerfile
 USER root
 ```
 
-Otherwise you will get `Permission denied` errors when trying to build the image.
+To follow best practices you might want to switch back to the non-root user afterwards. Just don't forget to make the created folder accessible to anyone in that case.
+
+```dockerfile
+USER root
+
+# create the folder for the checkpoint files inside the image
+RUN \
+  mkdir -p /app/checkpoint && \
+  chmod 777 /app/checkpoint
+
+USER 1001
+```
 
 #### Application start
 
@@ -209,6 +221,7 @@ OpenJDK CRaC only needs
 ```
 docker run \
 -it \
+-p 8080:8080 \
 --cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE \
 --name application_checkpoint \
 application_checkpoint
@@ -223,6 +236,7 @@ so that any unnecessary caps that the container runtime may give can be dropped 
 ```
 docker run \
 -it \
+-p 8080:8080 \
 --cap-drop=ALL \
 --cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --cap-add=SETPCAP \
 --security-opt seccomp=unconfined \
@@ -231,13 +245,7 @@ application_checkpoint
 ```
 
 __*Note:*__  
-To access the application you need to add the network configuration based on your environment. If you are on Linux or using Windows and Docker Desktop, add the port configuration
-
-```
--p 8080:8080
-```
-
-If you are on Windows and use Docker inside a WSL2 with mirrored networking, try to connect to the host network:
+If you are on Windows 11 and use a WSL2 with `networkingMode=mirrored`, instead of the port configuration you need to connect to the host network:
 
 ```
 --network=host
@@ -323,7 +331,7 @@ I explain how to programmatically deal with open resources in later sections:
 - For OpenJ9 using the `CRIUSupport` API in [OpenJ9 resource handling](#openj9-resource-handling)
 
 __*Note:*__  
-For the OSGi Jakarta-RS Whiteboard I have [created a pull request](https://github.com/osgi/jakartarest-osgi/pull/45) to add CRaC support.
+For the OSGi Jakarta-RS Whiteboard I have [created a pull request](https://github.com/osgi/jakartarest-osgi/pull/45) to add CRaC support. The review is in progress. Until it is merged and a new version with CRaC support is published, you need to handle the open socket in the Jetty yourself, as described in the sections linked above.
 
 __*Note:*__  
 Other frameworks like Micronaut, Spring Boot and Quarkus also provide CRaC support. At the end of this blog post you will find some links to the corresponding resources.
@@ -342,7 +350,6 @@ You can use the `jcmd` to manually create a checkpoint. But in an automatized pr
 # sleep for 15 seconds to ensure everything is ready
 sleep 15
 # create the checkpoint
-echo "execute: jcmd app.jar JDK.checkpoint"
 jcmd app.jar JDK.checkpoint
 ```
 
@@ -1088,153 +1095,6 @@ For developers that work on Windows the only option is to use the Windows Subsys
 
 Further details on this are described in [Developing OpenJ9 CRIU checkpoint creation on Windows](openj9_criu_dev_on_windows.md).
 
-### Create a new image with checkpoint data
-
-After the checkpoint is created by starting the application container, we are able to create a new container image with checkpoint data. This can be done via [`docker container commit`](https://docs.docker.com/reference/cli/docker/container/commit/), which creates a new image from a container's changes. Additionally we use the `--change` option so the application is restored from the checkpoint and not started from scratch again.
-
-As a first step you need to get the container id to be able to create a new image from the container with the checkpoint data. As the container is already stopped, you can not use `docker ps` as shown in the Docker documentation. But you can use [`docker container inspect`](https://docs.docker.com/reference/cli/docker/container/inspect/) to get the id 
-
-```
-docker container inspect --format="{{.Id}}" application_checkpoint
-```
-
-The result of the above command is the container id, which can now be used to create the new image (replace `$CONTAINER_ID` in the following example commands).
-
-**Azul Zulu OpenJDK with CRaC**
-To restore the JVM from checkpoint with the OpenJDK CRaC implementation, use the `-XX:CRaCRestoreFrom={PATH}` option. This actually does not start the JVM, it executes CRIU which starts the restored process as its child. Find further information in [Anatomy of CRaC Processes](https://docs.azul.com/core/crac/anatomy).
-
-```
-docker container commit \
---change='CMD ["java", "-XX:CRaCRestoreFrom=/app/checkpoint"]' \
-$CONTAINER_ID \
-application_restore
-```
-
-**OpenJ9 CRIU Support**
-At the time writing this blog post, OpenJ9 does not support `-XX:CRaCRestoreFrom`. Instead you need to call `criu` directly to restore the process. This works for the `org.crac` support as well as for the OpenJ9 `CRIUSupport`.
-
-```
-docker container commit \
---change='CMD ["criu", "restore", "--unprivileged", "-D", "/app/checkpoint", "--shell-job", "-v4", "--log-file=restore.log"]' \
-$CONTAINER_ID \
-application_restore
-```
-
-**_Note:_**  
-Remember that you should not run the container for the checkpoint creation with the `--rm` option, as this automatically removes the container when it exits, and then you are not able to create a new image out of it. The checkpoint creation stops the Java application, which typically shuts down the container.
-
-With all this information in place, we are able to create a shell script that executes all of these commands to create a container with checkpoint data without manual interaction.
-
-**Azul Zulu OpenJDK with CRaC**
-```shell
-#! /bin/bash
-
-CHECKPOINT_NAME=application_checkpoint
-RESTORE_NAME=application_restore
-
-# first build the image to create the checkpoint
-docker build -t ${CHECKPOINT_NAME} .
-
-# run the container with necessary capabilities
-docker run \
--it \
---cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE \
---name ${CHECKPOINT_NAME} \
-${CHECKPOINT_NAME}
-
-# get the container id to be able to create a new image from the container with the checkpoint data
-CONTAINER_ID=$(docker inspect --format="{{.Id}}" ${CHECKPOINT_NAME})
-
-# create a new image from the previous one that adds the checkpoint files
-docker container commit \
---change='CMD ["java", "-XX:CRaCRestoreFrom=/app/checkpoint"]' \
-$CONTAINER_ID \
-${RESTORE_NAME}
-
-# Delete the checkpoint creation container
-docker container rm ${CHECKPOINT_NAME}
-# Delete the checkpoint creation image
-docker image rm ${CHECKPOINT_NAME}
-
-# Delete the dangling images
-docker rmi $(docker images -q --filter "dangling=true")
-```
-
-**OpenJ9 CRIU Support**
-```shell
-#! /bin/bash
-
-CHECKPOINT_NAME=application_checkpoint
-RESTORE_NAME=application_restore
-
-# first build the image to create the checkpoint
-docker build -t ${CHECKPOINT_NAME} .
-
-# run the container with necessary capabilities
-docker run \
--it \
---cap-drop=ALL \
---cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --cap-add=SETPCAP \
---security-opt seccomp=unconfined \
---name ${CHECKPOINT_NAME} \
-${CHECKPOINT_NAME}
-
-# get the container id to be able to create a new image from the container with the checkpoint data
-CONTAINER_ID=$(docker inspect --format="{{.Id}}" ${CHECKPOINT_NAME})
-
-# create a new image from the previous one that adds the checkpoint files
-docker container commit \
---change='CMD ["criu", "restore", "--unprivileged", "-D", "/app/checkpoint", "--shell-job", "-v4", "--log-file=restore.log"]' \
-$CONTAINER_ID \
-${RESTORE_NAME}
-
-# Delete the checkpoint creation container
-docker container rm ${CHECKPOINT_NAME}
-# Delete the checkpoint creation image
-docker image rm ${CHECKPOINT_NAME}
-
-# Delete the dangling images
-docker rmi $(docker images -q --filter "dangling=true")
-```
-
-Executing this script performs all the tasks I described before automatically, and we get an application image with checkpoint data. Additionally it cleans up the container registry at the end.
-
-## Run container with checkpoint data
-
-After the application container image with checkpoint data is created, new containers based on that image can be created, e.g.
-
-**Docker from WSL**
-```
-docker run \
--it \
---rm \
---network=host \
---name restore_test \
-application_restore:latest
-```
-
-Starting a container that uses the Azul Zulu JRE with CRaC on Windows fails with a PID error. Although everything is prepared to run in an unprivileged mode, it is necessary on Windows to add the `CHECKPOINT_RESTORE` capability. So the command to start the container needs to look like this
-
-**Docker Desktop from Windows Host**
-```
-docker run ^
--it ^
---rm ^
--p 8080:8080 ^
---cap-add=CHECKPOINT_RESTORE ^
---name restore_test ^
-application_restore:latest
-```
-
-######################  
-TODO check if we need the capabilities when starting openj9 container
-
-To run the created container with checkpoint data you also need to set the necessary capabilities and disable the security profile
-
-    docker run -d -p 11311:11311 --rm --cap-drop=ALL --cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --cap-add=SETPCAP --security-opt seccomp=unconfined $IMAGE_NAME
-
-######################
-
 ### PID Handling
 
 In the unprivileged mode the goal is to need no additional capabilities or permissions. To make this work the PID is a topic that needs to be considered. Unfortunately it is a bit confusing in the documentation and communication. The [Azul Documentation](https://docs.azul.com/core/crac/crac-guidelines#run-in-container) contains the following note
@@ -1389,6 +1249,164 @@ RUN \
 CMD ["./start.sh"]
 ```
 
+### Create a new image with checkpoint data
+
+After the checkpoint is created by starting the application container, we are able to create a new container image with checkpoint data. This can be done via [`docker container commit`](https://docs.docker.com/reference/cli/docker/container/commit/), which creates a new image from a container's changes. Additionally we use the `--change` option so the application is restored from the checkpoint and not started from scratch again.
+
+As a first step you need to get the container id to be able to create a new image from the container with the checkpoint data. As the container is already stopped, you can not use `docker ps` as shown in the Docker documentation. But you can use [`docker container inspect`](https://docs.docker.com/reference/cli/docker/container/inspect/) to get the id 
+
+```
+docker container inspect --format="{{.Id}}" application_checkpoint
+```
+
+The result of the above command is the container id, which can now be used to create the new image (replace `$CONTAINER_ID` in the following example commands).
+
+**Azul Zulu OpenJDK with CRaC**
+To restore the JVM from checkpoint with the OpenJDK CRaC implementation, use the `-XX:CRaCRestoreFrom={PATH}` option. This actually does not start the JVM, it executes CRIU which starts the restored process as its child. Find further information in [Anatomy of CRaC Processes](https://docs.azul.com/core/crac/anatomy).
+
+```
+docker container commit \
+--change='CMD ["java", "-XX:CRaCRestoreFrom=/app/checkpoint"]' \
+$CONTAINER_ID \
+application_restore
+```
+
+**OpenJ9 CRIU Support**
+At the time writing this blog post, OpenJ9 does not support `-XX:CRaCRestoreFrom`. Instead you need to call `criu` directly to restore the process. This works for the `org.crac` support as well as for the OpenJ9 `CRIUSupport`.
+
+```
+docker container commit \
+--change='CMD ["criu", "restore", "--unprivileged", "-D", "/app/checkpoint", "--shell-job", "-v4", "--log-file=restore.log"]' \
+$CONTAINER_ID \
+application_restore
+```
+
+**_Note:_**  
+Remember that you should not run the container for the checkpoint creation with the `--rm` option, as this automatically removes the container when it exits, and then you are not able to create a new image out of it. The checkpoint creation stops the Java application, which typically shuts down the container.
+
+With all this information in place, we are able to create a shell script that executes all of these commands to create a container with checkpoint data without manual interaction.
+
+**Azul Zulu OpenJDK with CRaC**
+```shell
+#! /bin/bash
+
+CHECKPOINT_NAME=application_checkpoint
+RESTORE_NAME=application_restore
+
+# first build the image to create the checkpoint
+docker build -t ${CHECKPOINT_NAME} .
+
+# run the container with necessary capabilities
+docker run \
+-it \
+--cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE \
+--name ${CHECKPOINT_NAME} \
+${CHECKPOINT_NAME}
+
+# get the container id to be able to create a new image from the container with the checkpoint data
+CONTAINER_ID=$(docker inspect --format="{{.Id}}" ${CHECKPOINT_NAME})
+
+# create a new image from the previous one that adds the checkpoint files
+docker container commit \
+--change='CMD ["java", "-XX:CRaCRestoreFrom=/app/checkpoint"]' \
+$CONTAINER_ID \
+${RESTORE_NAME}
+
+# Delete the checkpoint creation container
+docker container rm ${CHECKPOINT_NAME}
+# Delete the checkpoint creation image
+docker image rm ${CHECKPOINT_NAME}
+
+# Delete the dangling images
+docker rmi $(docker images -q --filter "dangling=true")
+```
+
+**OpenJ9 CRIU Support**
+```shell
+#! /bin/bash
+
+CHECKPOINT_NAME=application_checkpoint
+RESTORE_NAME=application_restore
+
+# first build the image to create the checkpoint
+docker build -t ${CHECKPOINT_NAME} .
+
+# run the container with necessary capabilities
+docker run \
+-it \
+--cap-drop=ALL \
+--cap-add=CHECKPOINT_RESTORE --cap-add=SYS_PTRACE --cap-add=SETPCAP \
+--security-opt seccomp=unconfined \
+--name ${CHECKPOINT_NAME} \
+${CHECKPOINT_NAME}
+
+# get the container id to be able to create a new image from the container with the checkpoint data
+CONTAINER_ID=$(docker inspect --format="{{.Id}}" ${CHECKPOINT_NAME})
+
+# create a new image from the previous one that adds the checkpoint files
+docker container commit \
+--change='CMD ["criu", "restore", "--unprivileged", "-D", "/app/checkpoint", "--shell-job", "-v4", "--log-file=restore.log"]' \
+$CONTAINER_ID \
+${RESTORE_NAME}
+
+# Delete the checkpoint creation container
+docker container rm ${CHECKPOINT_NAME}
+# Delete the checkpoint creation image
+docker image rm ${CHECKPOINT_NAME}
+
+# Delete the dangling images
+docker rmi $(docker images -q --filter "dangling=true")
+```
+
+Executing this script performs all the tasks I described before automatically, and we get an application image with checkpoint data. Additionally it cleans up the container registry at the end.
+
+## Run container with checkpoint data
+
+After the application container image with checkpoint data is created, new containers based on that image can be created, e.g.
+
+**OpenJDK CRaC - Docker from WSL**
+```
+docker run \
+-it \
+-p 8080:8080 \
+--rm \
+--name restore_test \
+application_restore:latest
+```
+
+__*Note:*__  
+Remember that if you are on Windows 11 and use a WSL2 with `networkingMode=mirrored`, the port configuration needs to be replaced with `--network=host`.
+
+**OpenJDK CRaC - Docker Desktop from Windows Host**
+
+Starting a container that uses the Azul Zulu JRE with CRaC on Windows fails with a PID error. Although everything is prepared to run in an unprivileged mode, it is necessary on Windows to add the `CHECKPOINT_RESTORE` capability. So the command to start the container needs to look like this
+
+```
+docker run ^
+-it ^
+--rm ^
+-p 8080:8080 ^
+--cap-add=CHECKPOINT_RESTORE ^
+--name restore_test ^
+application_restore:latest
+```
+
+**OpenJ9 CRIU Support**
+
+Compared to the OpenJDK CRaC implementation, the OpenJ9 CRIU Support needs additional capabilities and security options when starting the application from checkpoint in a container. You basically need the same capabilities and security options as for the checkpoint creastion:
+
+```
+docker run \
+-it \
+--rm \
+-p 8080:8080 \
+--cap-add=CHECKPOINT_RESTORE \
+--cap-add=SYS_PTRACE \
+--security-opt seccomp=unconfined \
+--name restore_test \
+application_restore:latest
+```
+
 ### Terminal
 
 If you start the restore container now, you probably see the following TTY error:
@@ -1400,6 +1418,8 @@ Error (criu/tty.c:843): tty: Can't set tty params on 0x17, trying to skip...: Op
 This error can be neglected. It seems CRIU attempts to restore TTY setting. [@AntonKozlov](https://github.com/AntonKozlov) mentioned that it would be more correct to do this in the CRaC JVM. You can simply ignore the issue, or redirect the stdout and stderr to files. 
 
 The server should be available, but the error might be confusing. The reason is that in unprivileged mode we can't easily re-attach std out/err/in to terminals. In the initial version of the Jakarta-RS Whiteboard Tutorial I used SLF4J Simple Logging provider, which writes the logs to stdout.
+
+The issue can be neglected for OpenJDK CRaC or if you run the OpenJ9 CRIU Support container with an interactive terminal (`-ti`). If you start the OpenJ9 restore container without an interactive terminal, the container will exit immediately because trying to attach to a terminal in unprivileged mode without `-ti` causes an error. 
 
 One solution to this is to tie stdin to /dev/null and redirect stdout and stderr to files, and those files need to be present at the same path on restore. The easiest solution is to just dump them to the checkpoint data dir. (as suggested by [@ymanton](https://github.com/ymanton)).
 
@@ -1469,9 +1489,27 @@ If the container is closed before you can connect to it, you can perform the che
 
 4. After a failure, check the logs (see above)
 
+### OpenJ9 checkpoint creation failures
+
+If the checkpoint creation with OpenJ9 fails with errors like this
+
+```
+suspending seccomp failed: Operation not permitted
+```
+
+It indicates that seccomp is not disabled inside the container. Ensure that `--security-opt seccomp=unconfined` is set on starting the container.
+
+If it happens even though `--security-opt seccomp=unconfined` is set, you might run into an issue with WSL2 and `networkingMode=mirrored`. In this mode the seccomp configuration is not working, as the mirrored networking mode requires registering some seccomp filters and the presence of those filters is causing issues in generating the checkpoint. I have [created a GitHub Issue](https://github.com/microsoft/WSL/issues/10981) to get the issue hopefully addressed someday.
+
+Until this get solved, the only solution to get a checkpoint created in a container on Windows, is to switch back to `networkingMode=NAT`.
+
+If you have not heard about the WSL2 networking mode, here are some resources about it:
+- [Accessing network applications with WSL - Mirrored mode networking](https://learn.microsoft.com/en-us/windows/wsl/networking#mirrored-mode-networking)
+- [Advanced settings configuration in WSL - Configuration settings for .wslconfig](https://learn.microsoft.com/en-us/windows/wsl/wsl-config#configuration-settings-for-wslconfig)
+
 ### Build the containers on Windows host with Podman  
 
-If you want to build the containers with Podman on a Windows host (which means you have Podman Desktop installed), you need to use the `--network host` parameter so the container is able to communicate to the outside world. Otherwise you will get an error similar to the following, when trying to install packages in the container:
+If you want to build the containers with Podman on a Windows host (which means you have Podman Desktop installed), and you use `networkingMode=mirrored` you need to use the `--network host` parameter so the container is able to communicate to the outside world. Otherwise you will get an error similar to the following, when trying to install packages in the container:
 
 ```
 fetch https://dl-cdn.alpinelinux.org/alpine/v3.20/community/x86_64/APKINDEX.tar.gz
@@ -1480,17 +1518,25 @@ WARNING: fetching https://dl-cdn.alpinelinux.org/alpine/v3.20/community: tempora
 
 ## Checkpoint Costs
 
-The improved startup time does of course come with some costs. In this case the cost of additional disk space. A fact that is not mentioned. Probably because it seems to be obvious that checkpoint files need space on the disk. As this was one of the first questions I got asked when talking about CRaC and CRIU, here is the table to compare the image sizes.
+Comparing timestamps on startup, we see that from starting the container until the last entry related to starting the server and registering the resources (before the checkpoint logs), it takes around 3 to 4 seconds until the containerized application is ready. And on restoring the application the container the time between `docker run` and the application is ready, is about 500ms.
+
+__*Note:*__  
+I measured the startup time by printing a timestamp before calling `docker run` and comparing the timestamp with a log entry that shows that the application is ready. The measurement therefore also includes the container startup time, which is the reason why the number is probably bigger than shown in the measurements in other blog posts and documentations.
+
+But the improved startup time does of course come with some costs. In this case the cost of additional disk space. A fact that is not mentioned. Probably because it seems to be obvious that checkpoint files need space on the disk. As this was one of the first questions I got asked when talking about CRaC and CRIU, here is the table to compare the image sizes.
 
 |Base Image                | Size w/o checkpoint | Size with checkpoint |
 |:---                      |                 ---:|                  ---:|
-| Azul Zulu / Ubuntu / JDK |                495MB|                 625MB|
-| Azul Zulu / Ubuntu / JRE |                375MB|                 508MB|
-| Azul Zulu / Alpine / JRE |                257MB|                 391MB|
-| OpenJ9 / UBI / JDK       |                572MB|                      |
-| OpenJ9 / UBI / JRE       |                356MB|                      |
+| Azul Zulu / Ubuntu / JDK |                495MB|                 645MB|
+| Azul Zulu / Ubuntu / JRE |                376MB|                 519MB|
+| Azul Zulu / Alpine / JRE |                257MB|                 399MB|
+| OpenJ9 / UBI / JDK       |                572MB|                 661MB|
+| OpenJ9 / UBI / JRE       |                356MB|                 444MB|
 
-From the measurements we see that the checkpoint image files take around 130MB. While testing I noticed that the size varies if I run the checkpoint process multiple times.
+For the OpenJDK CRaC the checkpoint image files are around 130 - 150 MB.
+For the OpenJ9 CRIU Support the checkpoint image files are around 90 MB.
+
+While testing I noticed that the size varies if I run the checkpoint process multiple times.
 
 ## Further Information / Link Collection
 

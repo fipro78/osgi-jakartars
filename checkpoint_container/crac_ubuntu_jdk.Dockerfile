@@ -8,7 +8,8 @@ ENV JAVA_OPTS_EXTRA="\
 EXPOSE 8080
 
 # copy the application jar to the image
-COPY app.jar /app/
+# COPY app.jar /app/
+COPY app-crac.jar /app/app.jar
 # copy the file descriptor policies to the image
 COPY fd_policies.yaml /app/
 # copy the shell scripts to the image
@@ -25,4 +26,5 @@ RUN \
 
 # start the application for checkpoint creation
 WORKDIR /app
-CMD ["./start_jcmd.sh"]
+# CMD ["./start_jcmd.sh"]
+CMD ["./start.sh"]

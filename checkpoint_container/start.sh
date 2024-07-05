@@ -10,5 +10,5 @@ done
 # and those files need to be present at the same path on restore. The easiest solution is to just dump them to the checkpoint data dir.
 # java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar 0</dev/null 1>/app/checkpoint/stdout 2>/app/checkpoint/stderr
 
-java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar
-# java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar 0</dev/null 1>/app/checkpoint/stdout 2>/app/checkpoint/stderr
+# java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar
+java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar 0</dev/null 1>/app/checkpoint/stdout 2>/app/checkpoint/stderr

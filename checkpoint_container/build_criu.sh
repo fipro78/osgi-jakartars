@@ -48,6 +48,9 @@ fi
 # first build the image to create the checkpoint
 $CMD build -t ${CHECKPOINT_NAME} --build-arg VERSION=${VERSION} -f criu_${VAR}.Dockerfile .
 
+echo Start the container for checkpoint creation
+echo $(date)
+
 # run the container with necessary capabilities
 $CMD run \
 -it \

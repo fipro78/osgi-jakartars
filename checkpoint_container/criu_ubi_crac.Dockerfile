@@ -23,7 +23,10 @@ COPY start.sh /app/
 # create the folder for the crac files inside the image
 RUN \
   mkdir -p /app/checkpoint && \
+  chmod 777 /app/checkpoint && \
   chmod 755 /app/start.sh
+
+USER 1001
 
 # start the application for checkpoint creation
 WORKDIR /app
