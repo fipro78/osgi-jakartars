@@ -866,6 +866,7 @@ mvn archetype:generate \
       if (CRIUSupport.isCRIUSupportEnabled()) {
           new CRIUSupport(Paths.get("checkpoint"))
               .setLeaveRunning(false)
+              .setShellJob(true)
               .setFileLocks(true)
               .setTCPEstablished(true)
               .setLogLevel(4)
