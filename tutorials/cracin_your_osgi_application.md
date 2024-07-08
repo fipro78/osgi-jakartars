@@ -784,7 +784,10 @@ COPY start.sh /app/
 # create the folder for the crac files inside the image
 RUN \
   mkdir -p /app/checkpoint && \
+  chmod 777 /app/checkpoint && \
   chmod 755 /app/start.sh
+
+USER 1001
 
 # start the application for checkpoint creation
 WORKDIR /app
@@ -1077,7 +1080,10 @@ COPY start.sh /app/
 # create the folder for the checkpoint files and make the start script executable
 RUN \
   mkdir -p /app/checkpoint && \
+  chmod 777 /app/checkpoint && \
   chmod 755 /app/start.sh
+
+USER 1001
 
 # start the application for checkpoint creation
 WORKDIR /app
@@ -1587,7 +1593,7 @@ https://foojay.io/today/how-we-developed-the-eclipse-openj9-criu-support-for-fas
 
 ### Discussions on GitHub Issues
 
-These are the tickets in which I had quite some discussion about CRaC and CRIU with the experts. Again many thanks to [@AntonKozlov](https://github.com/AntonKozlov), [@tajila](https://github.com/tajila), [@ymanton](https://github.com/ymanton) and everyone else from the Azul and OpenJ9 support.
+These are the tickets in which I had quite some discussion about CRaC and CRIU with the experts. Again many thanks to [@AntonKozlov](https://github.com/AntonKozlov), [@HanSolo](https://github.com/HanSolo), [@tajila](https://github.com/tajila), [@tjwatson](https://github.com/tjwatson), [@ymanton](https://github.com/ymanton) and everyone else from the Azul and OpenJ9 support.
 
 - [GitHub Ticket @OpenJ9](https://github.com/eclipse-openj9/openj9/issues/18229)
 - [GitHub Ticket @OSGi](https://github.com/osgi/osgi/issues/631)
