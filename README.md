@@ -4,8 +4,9 @@ This repository contains an example to show how to create a REST-based service o
 [Whiteboard Specification for Jakarta™ RESTful Web Services](https://docs.osgi.org/specification/osgi.cmpn/8.1.0/service.jakartars.html)
 and the [OSGi Technology Whiteboard Implementation for Jakarta RESTful Web Services](https://github.com/osgi/jakartarest-osgi) reference implementation.
 
-There is a blog post related to this repository that explains the details:  
-[Build REST services with the OSGi Whiteboard Specification for Jakarta™ RESTful Web Services](https://vogella.com/blog/build-rest-services-with-osgi-jakarta-rs-whiteboard/)
+There are blog posts related to this repository that explain the details:  
+- [Build REST services with the OSGi Whiteboard Specification for Jakarta™ RESTful Web Services](https://vogella.com/blog/build-rest-services-with-osgi-jakarta-rs-whiteboard/)
+- [CRaCin` your OSGi application - start so fast I want to CRIU](https://vogella.com/blog/cracin-your-osgi-application/)
 
 ## Build Images with CRaC Support
 
