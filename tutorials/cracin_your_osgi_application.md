@@ -1140,7 +1140,7 @@ If we change the command to use `exec`, the PID becomes 129 in our example, whic
 exec java -XX:CRaCCheckpointTo=/app/checkpoint -jar /app/app.jar
 ```
 
-Unfortunately the `exec` command is not available in an Alpine image, so there you will again get the error we have already seen in 1. Also the automatic PID adjustment is not available in the OpenJ9 CRIU Support.
+Unfortunately the `exec` command does not have the desired effect in an Alpine image, so there you will again get the error we have already seen in 1. Also the automatic PID adjustment is not available in the OpenJ9 CRIU Support.
 
 3. Use `-XX:CRaCMinPid={value}`
 
