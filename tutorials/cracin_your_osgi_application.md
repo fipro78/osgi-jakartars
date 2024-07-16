@@ -67,7 +67,7 @@ There is a basic [OpenJ9 CRIU Support documentation](https://eclipse.dev/openj9/
 A checkpoint can only be created programmatically via OpenJ9 `CRIUSupport` API. In the most current version the usage of the `org.crac` API is also supported.
 
 __*Note:*__  
-There is no support for manually creating a checkpoint using the `jcmd` tool. The reason is probably that the OpenJ9 `jcmd` tool is a different implementation that is specific to OpenJ9, and is not related to the HotSpot tool of the same name (see [OpenJ9 - Java diagnostic command (`jcmd`) tool](https://eclipse.dev/openj9/docs/tool_jcmd/))
+It is possible to create a checkpoint manually using the `jcmd` tool with the OpenJ9 CRaC support. As OpenJ9 does not yet "officially" support CRaC, this fact is not yet documented. Note that the OpenJ9 `jcmd` tool is a different implementation that is specific to OpenJ9, and is not related to the HotSpot tool of the same name (see [OpenJ9 - Java diagnostic command (`jcmd`) tool](https://eclipse.dev/openj9/docs/tool_jcmd/))
 
 ## Image Creation Process
 
@@ -263,7 +263,7 @@ In the following section I will describe different ways how to create a checkpoi
 Even though the goal of this article is to automatically create an application container image with checkpoint data, it is a good idea to try to generate a checkpoint manually. This helps in finding and understanding possible issues early and be able to resolve them before the automation process.
 
 __*Note:*__  
-Creating a checkpoint manually is only possible with the OpenJDK CRaC implementation. And it is only available if you use a base image with a JDK, as there is no `jcmd` available in the JRE.
+Creating a checkpoint manually is only possible with the OpenJDK CRaC implementation or the not yet officially released OpenJ9 CRaC support. And it is only available if you use a base image with a JDK, as there is no `jcmd` available in the JRE.
 
 Once the application in the container is ready, 
 

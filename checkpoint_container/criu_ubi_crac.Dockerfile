@@ -18,16 +18,21 @@ COPY app-crac.jar /app/app.jar
 # copy the file descriptor policies to the image
 COPY fd_policies.yaml /app/
 # copy the shell scripts to the image
+COPY start_create_checkpoint.sh /app/
+COPY start_jcmd.sh /app/
 COPY start_redirect.sh /app/start.sh
 
 # create the folder for the crac files inside the image
 RUN \
   mkdir -p /app/checkpoint && \
   chmod 777 /app/checkpoint && \
-  chmod 755 /app/start.sh
+  chmod 755 /app/start_jcmd.sh && \
+  chmod 755 /app/start.sh && \
+  chmod 755 /app/start_create_checkpoint.sh
 
 USER 1001
 
 # start the application for checkpoint creation
 WORKDIR /app
+# CMD ["./start_jcmd.sh"]
 CMD ["./start.sh"]
