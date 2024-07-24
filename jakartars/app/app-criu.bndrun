@@ -1,5 +1,11 @@
 index: target/index.xml;name="app-criu"
 
+-jpms-module-info: \
+    ${project.groupId}.${project.artifactId};\
+        version=${project.version};\
+        ee=JavaSE-${java.specification.version}
+-jpms-module-info-options: jdk.unsupported;static=false
+
 -standalone: ${index}
 
 -runsystempackages: org.eclipse.openj9.criu

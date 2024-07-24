@@ -12,6 +12,11 @@ else
   VERSION="open-21-jre-ubi-minimal"
 fi
 
+if [ "$RUNTIME" == "jlink" ]
+then 
+  VAR=$VAR_RUNTIME
+fi
+
 CHECKPOINT_NAME=criu_${VAR_RUNTIME}_checkpoint
 RESTORE_NAME=criu_${VAR_RUNTIME}_restore
 
