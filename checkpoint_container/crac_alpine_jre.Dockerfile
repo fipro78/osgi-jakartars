@@ -28,5 +28,9 @@ RUN \
   chmod 755 /app/start.sh
 
 WORKDIR /app
-ENTRYPOINT ["/sbin/tini", "--"]
+# There is a possible bug in Podman - ENTRYPOINT is reset by the following command:
+#    $ podman container commit --change="CMD [ 'whatever' ]" ...
+# This issue causes PIDs shifting in restore container.
+# So making it working with both Podman and Docker by commenting out the line below.
+# ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["./start.sh"]
