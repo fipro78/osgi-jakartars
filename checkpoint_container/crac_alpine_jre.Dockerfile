@@ -17,8 +17,8 @@ COPY fd_policies.yaml /app/
 # copy the shell scripts to the image
 COPY start.sh /app/
 
-# ADD "https://cdn.azul.com/zulu/bin/zulu17.50.21-ca-crac-jre17.0.11-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
-ADD "https://cdn.azul.com/zulu/bin/zulu21.34.21-ca-crac-jre21.0.3-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+# ADD "https://cdn.azul.com/zulu/bin/zulu17.52.19-ca-crac-jre17.0.12-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+ADD "https://cdn.azul.com/zulu/bin/zulu21.36.19-ca-crac-jre21.0.4-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 
 RUN \
   apk --no-cache add tini; \

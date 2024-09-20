@@ -1140,27 +1140,35 @@ If we change the command to use `exec`, the PID becomes 129 in our example, whic
 exec java -XX:CRaCCheckpointTo=/app/checkpoint -jar /app/app.jar
 ```
 
-Unfortunately the `exec` command does not have the desired effect in an Alpine image, so there you will again get the error we have already seen in 1. Also the automatic PID adjustment is not available in the OpenJ9 CRIU Support.
+_**Note:**_  
+If you have an `ENTRYPOINT` in your configuration, e.g. you want to use [tini](https://github.com/krallin/tini) in your Alpine image, the java process does not have PID 1 and the `exec` command does not have the desired effect. In this case you will again get the error we have already seen in 1. 
+
+_**Note:**_  
+The automatic PID adjustment is not available in the OpenJ9 CRIU Support.
 
 3. Use `-XX:CRaCMinPid={value}`
 
-The JVM flag `-XX:CRaCMinPid={value}` is at the time writing this blog post not documented. I found it by accident via [this ticket](https://github.com/openjdk/crac/pull/86).
+The JVM flag `-XX:CRaCMinPid={value}` was not documented at the time writing this blog post. I found it by accident via [this ticket](https://github.com/openjdk/crac/pull/86). In the meanwhile there is a documentation available via [Using the CRaCMinPid Option](https://docs.azul.com/core/crac/crac-debugging#using-cracminpid-option).
 
 ```
 java -XX:CRaCCheckpointTo=/app/checkpoint -XX:CRaCMinPid=512 -jar /app/app.jar
 ```
 
-Starting the application in the container with the additional JVM flag on an Ubuntu base image, the PID is 513 and the restore works fine. Trying the same on an Alpine base image results in 
+Starting the application in the container with the additional JVM flag, the PID is 513 and the restore works fine. 
+
+_**Note:**_  
+If you have an `ENTRYPOINT` in your configuration, e.g. you want to use [tini](https://github.com/krallin/tini) in your Alpine image, the java process does not have PID 1 which results in 
 
 ```
 Error (criu/pstree.c:404): Current gid 8 intersects with pid (1) in images
 ```
 
-And you might guess, that this JVM flag is also not available for OpenJ9 CRIU Support.
+_**Note:**_  
+This JVM flag is not available for OpenJ9 CRIU Support.
 
 4. Invoke a dummy command
 
-The only solution that worked across different base images and OpenJDK CRaC vs. OpenJ9 CRIU, is the idea of [@ymanton](https://github.com/ymanton) to invoke a dummy command 1000 times so the Java process can start with PID/TIDs >1000, which on restore are very likely to be free.
+The solution that worked across different base images and OpenJDK CRaC vs. OpenJ9 CRIU, and the usage of an `ENTRYPOINT` that is not java, is the idea of [@ymanton](https://github.com/ymanton) to invoke a dummy command 1000 times so the Java process can start with PID/TIDs >1000, which on restore are very likely to be free.
 
 ```bash
 for ((i=0;i<1000;i++))
