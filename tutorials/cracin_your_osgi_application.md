@@ -1662,7 +1662,7 @@ The size of the container images are smaller compared to the ones created with C
 | Azul Zulu / Ubuntu / JDK / Warp |                494MB|                 610MB|
 | Azul Zulu / Ubuntu / JRE / Warp |                380MB|                 410MB|
 
-_**Note:**  
+_**Note:**_  
 Interestingly the size of the container images with **Warp* checkpoint data differs slightly each time I create the image with `--no-cache`. 
 
 The startup on restore is similar to the one with CRIU, which is about 500ms. But it was often even slightly faster in my measurements.
