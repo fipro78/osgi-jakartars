@@ -5,6 +5,7 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 
 ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \
+-XX:+CRaCImageCompression \
 -Djdk.crac.resource-policies=/app/fd_policies.yaml \
 -Dorg.crac.Core.Compat=jdk.crac"
 
@@ -19,8 +20,8 @@ COPY start.sh /app/
 
 RUN apt-get update -y
 
-# ADD "https://cdn.azul.com/zulu/bin/zulu17.52.19-ca-crac-jre17.0.12-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
-ADD "https://cdn.azul.com/zulu/bin/zulu21.36.19-ca-crac-jre21.0.4-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+# ADD "https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-crac-jre17.0.13-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+ADD "https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-crac-jre21.0.5-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 
 RUN \
   tar --extract --file $JAVA_HOME/openjdk.tar.gz --directory "$JAVA_HOME" --strip-components 1; \

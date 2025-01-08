@@ -2,6 +2,7 @@ FROM azul/zulu-openjdk:21-jdk-crac-latest
 
 ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \
+-XX:+CRaCImageCompression \
 -Djdk.crac.resource-policies=/app/fd_policies.yaml \
 -Dorg.crac.Core.Compat=jdk.crac"
 

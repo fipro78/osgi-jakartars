@@ -109,7 +109,7 @@ FROM ubuntu:22.04
 ENV JAVA_HOME /opt/jdk
 ENV PATH $JAVA_HOME/bin:$PATH
 
-ADD "https://cdn.azul.com/zulu/bin/zulu21.34.21-ca-crac-jre21.0.3-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+ADD "https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-crac-jre21.0.5-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 
 RUN \
     tar --extract --file $JAVA_HOME/openjdk.tar.gz --directory "$JAVA_HOME" --strip-components 1; \
@@ -126,7 +126,7 @@ FROM alpine:3.20
 ENV JAVA_HOME /opt/jdk
 ENV PATH $JAVA_HOME/bin:$PATH
 
-ADD "https://cdn.azul.com/zulu/bin/zulu21.34.21-ca-crac-jre21.0.3-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+ADD "https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-crac-jre21.0.5-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 
 RUN \
     tar --extract --file $JAVA_HOME/openjdk.tar.gz --directory "$JAVA_HOME" --strip-components 1; \
@@ -1553,16 +1553,125 @@ But the improved startup time does of course come with some costs. In this case 
 
 |Base Image                | Size w/o checkpoint | Size with checkpoint |
 |:---                      |                 ---:|                  ---:|
-| Azul Zulu / Ubuntu / JDK |                495MB|                 645MB|
-| Azul Zulu / Ubuntu / JRE |                376MB|                 519MB|
-| Azul Zulu / Alpine / JRE |                257MB|                 399MB|
+| Azul Zulu / Ubuntu / JDK |                494MB|                 638MB|
+| Azul Zulu / Ubuntu / JRE |                380MB|                 510MB|
+| Azul Zulu / Alpine / JRE |                256MB|                 399MB|
 | OpenJ9 / UBI / JDK       |                572MB|                 661MB|
 | OpenJ9 / UBI / JRE       |                356MB|                 444MB|
 
-For the OpenJDK CRaC the checkpoint image files are around 130 - 150 MB.
+For the OpenJDK CRaC the checkpoint image files are around 130 - 145 MB.
 For the OpenJ9 CRIU Support the checkpoint image files are around 90 MB.
 
 While testing I noticed that the size varies if I run the checkpoint process multiple times.
+
+In the newest versions of the Azul Zulu CRaC runtime, it is possible to configure that the checkpoint image should be compressed. This can be done via the JVM option `-XX:+CRaCImageCompression` as described in [Using Image Compression on Checkpoint](https://docs.azul.com/core/crac/crac-guidelines#checkpoint-image-compression). Enabling the image compression, the container images with checkpoint files get smaller, as shown in the following table.
+
+|Base Image                | Size w/o checkpoint | Size with checkpoint |
+|:---                      |                 ---:|                  ---:|
+| Azul Zulu / Ubuntu / JDK |                494MB|                 546MB|
+| Azul Zulu / Ubuntu / JRE |                380MB|                 431MB|
+| Azul Zulu / Alpine / JRE |                256MB|                 306MB|
+
+The compressed checkpoint image files of OpenJDK CRaC are around 50 MB, which is a nice improvement with regards to the size of a container. This comes with a very small decrease in startup, which was around 100ms in my measurements.
+
+## CRaC Warp Engine
+
+The default engine that is used by CRaC to checkpoint and restore is based on CRIU. And as described before, CRIU requires additional capabilities. This is the reason for the rather complicated image creation process, as capabilities can not be added while building a container image, only on running a container. The usage of a multi-stage build doesn't work because of this.
+
+Since the Zulu CRaC release of October '24, an alternative, CRIU-independent engine for checkpoint and restore has been added (see [CRaC Engines](https://docs.azul.com/core/crac/crac-engines)). It is named **Warp** and does not require any additional privileges. Using the **Warp** engine it is therefore possible to use a Docker multi-stage build for creating a container image that contains a checkpoint image.
+
+To enable the **Warp** engine, the VM option `-XX:CRaCEngine=warp` needs to be set.
+
+The following Dockerfile shows how to create a container image with checkpoint data. It is basically the same as with using the CRIU engine, but the desired container image is created in a single docker build process. For this the following mechanisms are used:
+- It uses a [multi-stage build](https://docs.docker.com/build/building/multi-stage/)
+- In the first stage 
+    - the image with the application is created
+    - the application is started 
+    - the checkpoint is created
+    - instead of the shell script, I use [Here-Documents](https://github.com/moby/buildkit/blob/master/frontend/dockerfile/docs/reference.md#here-documents) to have all resources in one place.
+- In the second stage 
+    - the final image is created by copying the Java installation, the application with checkpoint files and the temp files created by the OSGi runtime
+    - the application is started with `-XX:CRaCRestoreFrom`. 
+- In both stages the VM option `-XX:CRaCEngine=warp` is used to enable the **Warp** engine
+
+```Dockerfile
+# syntax=docker/dockerfile:1
+ARG BASE_IMAGE=ubuntu:22.04
+
+FROM $BASE_IMAGE AS builder
+
+ENV JAVA_HOME=/opt/jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+ENV JAVA_OPTS_EXTRA="\
+-XX:CRaCCheckpointTo=/app/checkpoint \
+-XX:CRaCEngine=warp \
+-Djdk.crac.resource-policies=/app/fd_policies.yaml \
+-Dorg.crac.Core.Compat=jdk.crac"
+
+EXPOSE 8080
+
+# copy the application jar to the image
+COPY app-crac.jar /app/app.jar
+# copy the file descriptor policies to the image
+COPY fd_policies.yaml /app/
+
+RUN apt-get update -y
+
+# ADD "https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-crac-jre17.0.13-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+ADD "https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-crac-jre21.0.5-linux_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+
+RUN \
+  tar --extract --file $JAVA_HOME/openjdk.tar.gz --directory "$JAVA_HOME" --strip-components 1; \
+  rm $JAVA_HOME/openjdk.tar.gz; \
+  apt-get clean;
+
+WORKDIR /app
+
+# We use here-doc syntax to inline the script that will
+# start the application, warm it up and checkpoint
+RUN <<END_OF_SCRIPT
+#!/bin/bash
+java $JAVA_OPTS $JAVA_OPTS_EXTRA -jar app.jar
+PID=$!
+
+# Wait until the process completes, returning success
+# (wait would return exit code 137)
+wait $PID || true
+END_OF_SCRIPT
+
+# application container image with checkpoint image files
+FROM $BASE_IMAGE
+
+ENV JAVA_HOME=/opt/jdk
+ENV PATH=$JAVA_HOME/bin:$PATH
+
+# copy the Java installation
+COPY --from=builder $JAVA_HOME $JAVA_HOME
+# copy the application folder
+COPY --from=builder /app /app
+# copy the OSGi tmp folder
+COPY --from=builder /tmp /tmp
+CMD ["java", "-XX:CRaCEngine=warp", "-XX:CRaCRestoreFrom=/app/checkpoint"]
+```
+
+The size of the container images are smaller compared to the ones created with CRIU as the CRaC engine.
+
+|Base Image                       | Size w/o checkpoint | Size with checkpoint |
+|:---                             |                 ---:|                  ---:|
+| Azul Zulu / Ubuntu / JDK / Warp |                494MB|                 610MB|
+| Azul Zulu / Ubuntu / JRE / Warp |                380MB|                 410MB|
+
+_**Note:**  
+Interestingly the size of the container images with **Warp* checkpoint data differs slightly each time I create the image with `--no-cache`. 
+
+The startup on restore is similar to the one with CRIU, which is about 500ms. But it was often even slightly faster in my measurements.
+
+You can find some more information about the new **Warp** engine in this blog post: [Warp: the new CRaC engine](https://foojay.io/today/warp-the-new-crac-engine/)
+
+_**Note:**_  
+**Warp** has additional nice features to improve the experience with CRaC, like encryption of the checkpoint image, improved compression features etc. 
+Unfortunately the **Warp** engine is a quite new feature, and therefore those nice additional features are currently only available in the **Subscriber Availability (SA)** distributions. They are not available in the free to download and use **Community Availability (CA)** distributions. It is also currently only available on Linux on x86_64 (using GLIBC). Therefore the verification on Alpine (using MUSL) is not yet possible using the CA distribution.
 
 ## Further Information / Link Collection
 
@@ -1576,6 +1685,7 @@ In the following section I collected the links to documentations and blog posts.
 - [How to Run a Java Application with CRaC in a Docker Container](https://foojay.io/today/how-to-run-a-java-application-with-crac-in-a-docker-container/)
 - [What the CRaC (Gerrit Grunwald at Voxxed Athens)](https://www.youtube.com/watch?v=Y9sEXOGlvoA)
 - [What the CRaC - Superfast JVM startup @slideshare](https://www.slideshare.net/slideshow/what-the-crac-superfast-jvm-startup-252967592/252967592)
+- [Warp: the new CRaC engine](https://foojay.io/today/warp-the-new-crac-engine/)
 
 ### OpenJ9 CRIU
 

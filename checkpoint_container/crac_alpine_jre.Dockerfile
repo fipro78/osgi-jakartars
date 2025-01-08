@@ -5,6 +5,7 @@ ENV PATH=$JAVA_HOME/bin:$PATH
 
 ENV JAVA_OPTS_EXTRA="\
 -XX:CRaCCheckpointTo=/app/checkpoint \
+-XX:+CRaCImageCompression \
 -Djdk.crac.resource-policies=/app/fd_policies.yaml \
 -Dorg.crac.Core.Compat=jdk.crac"
 
@@ -17,8 +18,8 @@ COPY fd_policies.yaml /app/
 # copy the shell scripts to the image
 COPY start.sh /app/
 
-# ADD "https://cdn.azul.com/zulu/bin/zulu17.52.19-ca-crac-jre17.0.12-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
-ADD "https://cdn.azul.com/zulu/bin/zulu21.36.19-ca-crac-jre21.0.4-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+# ADD "https://cdn.azul.com/zulu/bin/zulu17.54.21-ca-crac-jre17.0.13-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
+ADD "https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-crac-jre21.0.5-linux_musl_x64.tar.gz" $JAVA_HOME/openjdk.tar.gz
 
 RUN \
   apk --no-cache add tini; \

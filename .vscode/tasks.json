@@ -14,6 +14,110 @@
         }
       },
       {
+        "label": "Build Ubuntu JDK CRaC",
+        "type": "shell",
+        "command": "./build_crac.sh docker ubuntu_jdk",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Ubuntu JRE CRaC",
+        "type": "shell",
+        "command": "./build_crac.sh docker ubuntu_jre",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Alpine JRE CRaC",
+        "type": "shell",
+        "command": "./build_crac.sh docker alpine_jre",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run Ubuntu JDK CRaC",
+        "type": "shell",
+        "command": "./run_crac.sh docker ubuntu_jdk",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run Ubuntu JRE CRaC",
+        "type": "shell",
+        "command": "./run_crac.sh docker ubuntu_jre",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run Alpine JRE CRaC",
+        "type": "shell",
+        "command": "./run_crac.sh docker alpine_jre",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run Ubuntu JDK Warp",
+        "type": "shell",
+        "command": "./run_crac.sh docker ubuntu_jdk_warp",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Run Ubuntu JRE Warp",
+        "type": "shell",
+        "command": "./run_crac.sh docker ubuntu_jre_warp",
+        "group": "test",
+        "options": {
+            "cwd": "${workspaceFolder}/checkpoint_container"
+        },
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
         "label": "Build Ubuntu JDK CRaC Docker Image",
         "type": "shell",
         "command": "docker build -t application_checkpoint -f ./checkpoint_container/crac_ubuntu_jdk.Dockerfile ./checkpoint_container",
@@ -37,6 +141,26 @@
         "label": "Build Alpine JRE CRaC Docker Image",
         "type": "shell",
         "command": "docker build -t application_checkpoint -f ./checkpoint_container/crac_alpine_jre.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Ubuntu JDK Warp Docker Image",
+        "type": "shell",
+        "command": "docker build --no-cache -t crac_ubuntu_jdk_warp_restore -f ./checkpoint_container/crac_ubuntu_jdk_warp.Dockerfile ./checkpoint_container",
+        "group": "test",
+        "presentation": {
+          "reveal": "always",
+          "panel": "new"
+        }
+      },
+      {
+        "label": "Build Ubuntu JRE Warp Docker Image",
+        "type": "shell",
+        "command": "docker build --no-cache -t crac_ubuntu_jre_warp_restore -f ./checkpoint_container/crac_ubuntu_jre_warp.Dockerfile ./checkpoint_container",
         "group": "test",
         "presentation": {
           "reveal": "always",
